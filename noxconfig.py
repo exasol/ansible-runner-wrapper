@@ -5,6 +5,6 @@ from pathlib import Path
 from exasol.toolbox.config import BaseConfig
 
 PROJECT_CONFIG = BaseConfig(
-    project_name="ansible_runner_wrapper",
+    project_name="ansible/runner",
     root_path=Path(__file__).parent,
 )

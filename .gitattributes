@@ -1,6 +1,6 @@
 # Core Data and Locks
 /poetry.lock linguist-generated=true
-/exasol/ansible/runner/version.py linguist-generated=true
+/exasol/ansible/version.py linguist-generated=true
 /doc/changes/changelog.md linguist-generated=true
 /doc/_static/** linguist-generated=true
 
