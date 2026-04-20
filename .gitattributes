@@ -1,8 +1,8 @@
 # Core Data and Locks
 /poetry.lock linguist-generated=true
-/exasol/exasol.ansible_runner_wrapper/version.py linguist-generated=true
+/exasol/ansible_runner_wrapper/version.py linguist-generated=true
 /doc/changes/changelog.md linguist-generated=true
-/doc/_static linguist-generated=true
+/doc/_static/** linguist-generated=true
 
 # PTB GitHub Workflows (CI/CD & Publishing)
 /.github/workflows/build-and-publish.yml linguist-generated=true
