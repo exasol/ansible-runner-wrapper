@@ -1,0 +1,24 @@
+- name: Install required system packages
+  apt:
+    name: "{{apt_dependencies}}"
+    state: latest
+    update_cache: true
+    install_recommends: false
+  become: "{{need_sudo}}"
+
+- name: Copy 01-network-manager.yaml file
+  ansible.builtin.copy:
+    src: "{{item}}"
+    dest: "/{{item}}"
+    mode: 0644
+  become: "{{need_sudo}}"
+  with_items:
+    - 'etc/netplan/01-network-manager.yaml'
+
+- name:  Run netplan generate
+  shell: "netplan generate"
+  become: "{{need_sudo}}"
+
+- name:  Run netplan apply
+  shell: "netplan apply"
+  become: "{{need_sudo}}"

@@ -1,0 +1,8 @@
+- name: Copy entrypoint script
+  ansible.builtin.copy:
+    src: "entrypoint.py"
+    dest: "{{ dss_facts.entrypoint }}"
+    mode: 0644
+    group: "{{ user_group }}"
+    owner: "{{ user_name }}"
+  become: "{{need_sudo}}"

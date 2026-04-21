@@ -1,0 +1,7 @@
+- name: Install rsync
+  apt:
+    name: "{{apt_dependencies}}"
+    state: latest
+    update_cache: true
+    install_recommends: false
+  become: "{{need_sudo}}"

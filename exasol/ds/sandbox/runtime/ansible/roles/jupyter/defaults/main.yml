@@ -1,0 +1,18 @@
+---
+
+jupyterlab_ip: '*'
+jupyterlab_config: "{{user_home}}/.jupyter/jupyter_lab_config.py"
+jupyterlab_config_json: "{{user_home}}/.jupyter/jupyter_server_config.json"
+jupyterlab_default_url: "/lab/tree/start.ipynb"
+
+# overridden in include_role
+jupyterlab_virtualenv: "{{ user_home }}/jupyterenv"
+jupyterlab_command: "{{ jupyterlab_virtualenv }}/bin/jupyter-lab"
+jupyterlab_password: "{{ lookup('ansible.builtin.env', 'JUPYTER_LAB_PASSWORD', default='ailab') }}"
+jupyterlab_notebook_folder_initial: "{{ user_home }}/notebooks"
+jupyterlab_notebook_folder: "{{ user_home }}/notebooks"
+
+apt_dependencies:
+  - virtualenv=20.13.0+ds-2
+  - git=1:2.34.1-1ubuntu1.17
+  - unzip=6.0-26ubuntu3.2
