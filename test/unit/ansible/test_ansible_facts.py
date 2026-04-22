@@ -12,12 +12,15 @@ def sample_facts() -> AnsibleFacts:
     return AnsibleFacts({"dss_facts": SAMPLE_FACTS})
 
 
-@pytest.mark.parametrize("keys, expected", [
-    ([], SAMPLE_FACTS),
-    (["missing"], None),
-    (["a"], SAMPLE_FACTS["a"]),
-    (["a", "b", "c"], "value"),
-])
+@pytest.mark.parametrize(
+    "keys, expected",
+    [
+        ([], SAMPLE_FACTS),
+        (["missing"], None),
+        (["a"], SAMPLE_FACTS["a"]),
+        (["a", "b", "c"], "value"),
+    ],
+)
 def test_ansible_facts(
     sample_facts: AnsibleFacts,
     keys: list[str],

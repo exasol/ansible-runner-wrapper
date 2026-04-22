@@ -11,10 +11,10 @@ _default_config = {
         "name": "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*",
         "owner-id": "099720109477",
         "architecture": "x86_64",
-        "state": "available"
+        "state": "available",
     },
     "ansible_runner_wrapper_version": ANSIBLE_RUNNER_WRAPPER_VERSION,
-    "waf_region": "us-east-1"
+    "waf_region": "us-east-1",
 }
 
 

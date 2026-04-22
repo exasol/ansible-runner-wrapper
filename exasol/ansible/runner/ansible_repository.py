@@ -1,7 +1,12 @@
 from pathlib import Path
+
 import importlib_resources as ir
+
 import exasol.ds.sandbox.runtime.ansible
-from exasol.ds.sandbox.lib.logging import get_status_logger, LogType
+from exasol.ds.sandbox.lib.logging import (
+    LogType,
+    get_status_logger,
+)
 
 LOG = get_status_logger(LogType.ANSIBLE)
 
@@ -9,6 +14,17 @@ LOG = get_status_logger(LogType.ANSIBLE)
 class AnsibleRepository:
 
     def copy_to(self, target: Path) -> None:
+        """
+        Base class does not implement copying.
+
+        This method is intentionally left empty because:
+        - Different repository types (e.g. filesystem-based, package-based)
+          require different copy strategies.
+        - Subclasses like `AnsibleResourceRepository` provide the actual
+          implementation using their specific source (e.g. importlib resources).
+
+        This class acts as an interface / abstraction layer.
+        """
         pass
 
 
@@ -23,7 +39,9 @@ class AnsibleResourceRepository(AnsibleRepository):
         self._package = package
 
     @staticmethod
-    def copy_importlib_resources_file(src_file: ir.abc.Traversable, target_file: Path) -> None:
+    def copy_importlib_resources_file(
+        src_file: ir.abc.Traversable, target_file: Path
+    ) -> None:
         """
         Uses a given source path "src_file" given as an importlib_resources.abc.Traversable to copy the file it points to
         into the destination denoted by target_path.
@@ -42,7 +60,9 @@ class AnsibleResourceRepository(AnsibleRepository):
             file.write(content)
 
     @staticmethod
-    def copy_importlib_resources_dir_tree(src_path: ir.abc.Traversable, target_path: Path) -> None:
+    def copy_importlib_resources_dir_tree(
+        src_path: ir.abc.Traversable, target_path: Path
+    ) -> None:
         """
         Uses a given source path "scr_path" given as an importlib_resources.abc.Traversable to copy all files/directories
         in the directory tree whose root is scr_path into target_path.
@@ -55,10 +75,14 @@ class AnsibleResourceRepository(AnsibleRepository):
         for file in src_path.iterdir():
             file_target = target_path / file.name
             if file.is_file():
-                AnsibleResourceRepository.copy_importlib_resources_file(file, file_target)
+                AnsibleResourceRepository.copy_importlib_resources_file(
+                    file, file_target
+                )
             else:
                 file_target.mkdir(exist_ok=True)
-                AnsibleResourceRepository.copy_importlib_resources_dir_tree(file, file_target)
+                AnsibleResourceRepository.copy_importlib_resources_dir_tree(
+                    file, file_target
+                )
 
     def copy_to(self, target: Path) -> None:
         """

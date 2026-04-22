@@ -1,9 +1,8 @@
 import json
 import logging
+from collections.abc import Callable
 from typing import (
     Any,
-    Callable,
-    Dict,
     NewType,
 )
 
@@ -14,7 +13,7 @@ from exasol.ds.sandbox.lib.logging import (
     get_status_logger,
 )
 
-AnsibleEvent = NewType('AnsibleEvent', Dict[str, Any])
+AnsibleEvent = NewType("AnsibleEvent", dict[str, Any])
 
 
 class AnsibleException(RuntimeError):
@@ -26,12 +25,13 @@ class AnsibleAccess:
     Provides access to ansible runner.
     @raises: AnsibleException if ansible execution fails
     """
+
     @staticmethod
     def run(
-            private_data_dir: str,
-            run_ctx: AnsibleRunContext,
-            event_logger: Callable[[str], None],
-            event_handler: Callable[[AnsibleEvent], bool] = None,
+        private_data_dir: str,
+        run_ctx: AnsibleRunContext,
+        event_logger: Callable[[str], None],
+        event_handler: Callable[[AnsibleEvent], bool] = None,
     ) -> AnsibleFacts:
 
         # Lazy import breaks circular dependency

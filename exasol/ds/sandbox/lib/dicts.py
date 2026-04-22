@@ -6,7 +6,7 @@ class DictAccessor:
     Access values in a nested dictionary via key sequences.
     """
 
-    def __init__(self, raw: dict[str, Any], prefixes: list[str]|None = None):
+    def __init__(self, raw: dict[str, Any], prefixes: list[str] | None = None):
         self._raw = raw
         self.prefixes = prefixes or []
 
@@ -45,6 +45,5 @@ class DictAccessor:
         will return {"E1": "value"}
         """
         return {
-            entry: value for entry, keys in spec.items()
-            if (value := self.get(*keys))
+            entry: value for entry, keys in spec.items() if (value := self.get(*keys))
         }

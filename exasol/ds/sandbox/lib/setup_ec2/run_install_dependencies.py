@@ -1,24 +1,24 @@
-from importlib.metadata import version
-from typing import Tuple
-
-from exasol.ansible.runner.facts import AnsibleFacts
 from exasol.ansible.runner.ansible_access import AnsibleAccess
 from exasol.ansible.runner.ansible_context_manager import AnsibleContextManager
-from exasol.ansible.runner.ansible_repository import AnsibleRepository, \
-    default_repositories
-from exasol.ansible.runner.ansible_run_context import AnsibleRunContext, \
-    default_ansible_run_context
+from exasol.ansible.runner.ansible_repository import (
+    AnsibleRepository,
+    default_repositories,
+)
+from exasol.ansible.runner.ansible_run_context import (
+    AnsibleRunContext,
+    default_ansible_run_context,
+)
+from exasol.ansible.runner.facts import AnsibleFacts
 from exasol.ds.sandbox.lib.config import ConfigObject
-
 from exasol.ds.sandbox.lib.setup_ec2.host_info import HostInfo
 
 
 def run_install_dependencies(
     ansible_access: AnsibleAccess,
     configuration: ConfigObject,
-    host_infos: Tuple[HostInfo, ...] = tuple(),
+    host_infos: tuple[HostInfo, ...] = tuple(),
     ansible_run_context: AnsibleRunContext = default_ansible_run_context,
-    ansible_repositories: Tuple[AnsibleRepository, ...] = default_repositories,
+    ansible_repositories: tuple[AnsibleRepository, ...] = default_repositories,
 ) -> AnsibleFacts:
     """
     Runs ansible installation. The ansible working dir is created dynamically and removed afterwards.
@@ -29,11 +29,13 @@ def run_install_dependencies(
     """
     new_extra_vars = {
         "ansible_runner_wrapper_version": configuration.ansible_runner_wrapper_version,
-        "work_in_progress_notebooks": False
+        "work_in_progress_notebooks": False,
     }
     if ansible_run_context.extra_vars is not None:
         new_extra_vars.update(ansible_run_context.extra_vars)
-    new_ansible_run_context = AnsibleRunContext(ansible_run_context.playbook, new_extra_vars)
+    new_ansible_run_context = AnsibleRunContext(
+        ansible_run_context.playbook, new_extra_vars
+    )
     with AnsibleContextManager(ansible_access, ansible_repositories) as ansible_runner:
         facts = ansible_runner.run(new_ansible_run_context, host_infos=host_infos)
     return facts

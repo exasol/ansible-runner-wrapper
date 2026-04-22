@@ -1,6 +1,5 @@
 import tempfile
 from pathlib import Path
-from typing import Tuple
 
 from exasol.ansible.runner.ansible_access import AnsibleAccess
 from exasol.ansible.runner.ansible_repository import AnsibleRepository
@@ -9,7 +8,9 @@ from exasol.ansible.runner.ansible_runner import AnsibleRunner
 
 class AnsibleContextManager:
 
-    def __init__(self, ansible_access: AnsibleAccess, repositories: Tuple[AnsibleRepository]):
+    def __init__(
+        self, ansible_access: AnsibleAccess, repositories: tuple[AnsibleRepository]
+    ):
         self._work_dir = None
         self._ansible_access = ansible_access
         self._ansible_repositories = repositories
