@@ -23,19 +23,23 @@ class AnsibleContextManager:
         self._work_dir = tempfile.TemporaryDirectory()
         work_path = Path(self._work_dir.name)
 
-        copied_files = set()
+        # track file paths relative to repo roots
+        seen_files = set()
 
         for repo in self._ansible_repositories:
 
-            # copy using existing abstraction
+            # ❗ copy everything using repository API
             repo.copy_to(work_path)
 
-            # ❗ enforce duplicate detection AFTER copy
+            # ❗ detect duplicates based on relative paths in repo copies
             for file_path in work_path.rglob("*"):
                 if file_path.is_file():
-                    if file_path in copied_files:
-                        raise RuntimeError(f"Duplicate file detected: {file_path.relative_to(work_path)}")
-                    copied_files.add(file_path)
+                    relative = file_path.relative_to(work_path)
+
+                    if relative in seen_files:
+                        raise RuntimeError(f"Duplicate file detected: {relative}")
+
+                    seen_files.add(relative)
 
         return AnsibleRunner(self._ansible_access, work_path)
 
