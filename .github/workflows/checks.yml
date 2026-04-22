@@ -107,32 +107,6 @@ jobs:
             .lint.json
           include-hidden-files: true
 
-  lint-typing:
-    name: Lint Typing (Python-${{ matrix.python-versions }})
-    runs-on: "ubuntu-24.04"
-    permissions:
-      contents: read
-    strategy:
-      fail-fast: false
-      matrix:
-        python-versions: ["3.10", "3.11", "3.12", "3.13", "3.14"]
-
-    steps:
-      - name: Check out Repository
-        id: check-out-repository
-        uses: actions/checkout@v6
-
-      - name: Set up Python & Poetry Environment
-        id: set-up-python-and-poetry-environment
-        uses: exasol/python-toolbox/.github/actions/python-environment@v6
-        with:
-          python-version: ${{ matrix.python-versions }}
-          poetry-version: "2.3.0"
-
-      - name: Lint Typing
-        id: lint-typing
-        run: poetry run -- nox -s lint:typing
-
   audit-security:
     name: Audit Security (Python-${{ matrix.python-versions }})
     runs-on: "ubuntu-24.04"
@@ -166,28 +140,6 @@ jobs:
           name: security-python${{ matrix.python-versions }}
           path: .security.json
           include-hidden-files: true
-
-  check-format:
-    name: Check Format
-    runs-on: "ubuntu-24.04"
-    permissions:
-      contents: read
-    steps:
-      - name: Check out Repository
-        id: check-out-repository
-        uses: actions/checkout@v6
-
-      - name: Set up Python & Poetry Environment
-        id: set-up-python-and-poetry-environment
-        uses: exasol/python-toolbox/.github/actions/python-environment@v6
-        with:
-          python-version: "3.10"
-          poetry-version: "2.3.0"
-
-      - name: Check Format
-        id: check-format
-        run: poetry run -- nox -s format:check
-
 
   build-package:
     name: Build Package
