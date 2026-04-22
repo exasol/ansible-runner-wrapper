@@ -10,8 +10,8 @@ from typing import (
 
 import ansible_runner
 
-from exasol.ds.sandbox.lib.ansible.ansible_run_context import AnsibleRunContext
-from exasol.ds.sandbox.lib.ansible.facts import AnsibleFacts
+from exasol.ansible.runner.ansible_run_context import AnsibleRunContext
+from exasol.ansible.runner.facts import AnsibleFacts
 from exasol.ds.sandbox.lib.logging import (
     LogType,
     get_status_logger,

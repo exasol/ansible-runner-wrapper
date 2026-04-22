@@ -2,9 +2,9 @@ import tempfile
 from pathlib import Path
 from typing import Tuple
 
-from exasol.ds.sandbox.lib.ansible.ansible_access import AnsibleAccess
-from exasol.ds.sandbox.lib.ansible.ansible_repository import AnsibleRepository
-from exasol.ds.sandbox.lib.ansible.ansible_runner import AnsibleRunner
+from exasol.ansible.runner.ansible_access import AnsibleAccess
+from exasol.ansible.runner.ansible_repository import AnsibleRepository
+from exasol.ansible.runner.ansible_runner import AnsibleRunner
 
 
 class AnsibleContextManager:
