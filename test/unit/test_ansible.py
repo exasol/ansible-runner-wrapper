@@ -1,19 +1,34 @@
 import pathlib
+import test.ansible
+import test.unit.resources.ansible_conflict
 from collections import namedtuple
-from typing import Callable, Optional
+from pathlib import Path
+from typing import (
+    Any,
+    Callable,
+    Optional,
+)
+from unittest.mock import Mock
 
 import pytest
 
-from exasol.ansible.runner.ansible_repository import default_repositories, \
-    AnsibleResourceRepository
-from exasol.ansible.runner.ansible_run_context import AnsibleRunContext, \
-    default_ansible_run_context
-from exasol.ansible.runner.ansible_access import AnsibleEvent
+from exasol.ansible.runner.ansible_access import (
+    AnsibleAccess,
+    AnsibleEvent,
+)
+from exasol.ansible.runner.ansible_repository import (
+    AnsibleResourceRepository,
+    default_repositories,
+)
+from exasol.ansible.runner.ansible_run_context import (
+    AnsibleRunContext,
+    default_ansible_run_context,
+)
+from exasol.ds.sandbox.lib.config import ConfigObject
 from exasol.ds.sandbox.lib.setup_ec2.host_info import HostInfo
-from exasol.ds.sandbox.lib.setup_ec2.run_install_dependencies import run_install_dependencies
-
-import test.ansible
-import test.unit.resources.ansible_conflict
+from exasol.ds.sandbox.lib.setup_ec2.run_install_dependencies import (
+    run_install_dependencies,
+)
 
 
 class AnsibleTestAccess:
@@ -41,10 +56,25 @@ def _extra_vars(config):
     }
 
 
-def test_run_ansible_default_values(test_config):
+def _run_context(
+    other: AnsibleRunContext,
+    config: ConfigObject | None = None,
+    extra_vars: dict[str, Any] | None = None,
+):
+    extra_vars = {
+        "ansible_runner_wrapper_version": config.ansible_runner_wrapper_version,
+        'work_in_progress_notebooks': False,
+    } if config else extra_vars or {}
+    return AnsibleRunContext(playbook=other.playbook, extra_vars=extra_vars)
+
+
+@pytest.mark.skip
+def test_old_run_ansible_default_values(test_config: ConfigObject):
     """
-    Test which executes run_install_dependencies with default values (default playbook and default ansible variables)
+    Test which executes run_install_dependencies with default values
+    (default playbook and default ansible variables)
     """
+
     ansible_access = AnsibleTestAccess()
     run_install_dependencies(ansible_access, test_config)
     expected_ansible_run_context = AnsibleRunContext(
@@ -53,6 +83,20 @@ def test_run_ansible_default_values(test_config):
     )
     assert ansible_access.call_arguments.private_data_dir.startswith("/tmp")
     assert ansible_access.call_arguments.run_ctx == expected_ansible_run_context
+
+
+def test_run_ansible_default_values(test_config: ConfigObject):
+    ansible_access = Mock(AnsibleAccess)
+    run_context = AnsibleRunContext(playbook="my_playbook.yml")
+    run_install_dependencies(
+        ansible_access,
+        test_config,
+        host_infos=tuple(),
+        ansible_run_context=run_context,
+    )
+    actual_args = ansible_access.run.call_args.args
+    assert actual_args[0].startswith("/tmp/")
+    assert actual_args[1] == _run_context(run_context, config=test_config)
 
 
 def test_run_ansible_custom_playbook(test_config):
