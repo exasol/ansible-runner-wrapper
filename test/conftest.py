@@ -4,10 +4,6 @@ import pytest
 
 from exasol.ds.sandbox.lib.config import default_config_object
 
-pytest_plugins = (
-    "test.aws.fixtures",
-)
-
 
 @pytest.fixture
 def jupyter_port():
