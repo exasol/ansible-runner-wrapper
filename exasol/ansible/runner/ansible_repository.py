@@ -1,6 +1,10 @@
 from pathlib import Path
+from typing import Any
 
-import importlib_resources as ir
+try:
+    import importlib.resources as ir
+except ImportError:  # pragma: no cover
+    import importlib_resources as ir
 
 import exasol.ds.sandbox.runtime.ansible
 from exasol.ds.sandbox.lib.logging import (
@@ -40,7 +44,7 @@ class AnsibleResourceRepository(AnsibleRepository):
 
     @staticmethod
     def copy_importlib_resources_file(
-        src_file: ir.abc.Traversable, target_file: Path
+        src_file: Any, target_file: Path
     ) -> None:
         """
         Uses a given source path "src_file" given as an importlib_resources.abc.Traversable to copy the file it points to
@@ -61,7 +65,7 @@ class AnsibleResourceRepository(AnsibleRepository):
 
     @staticmethod
     def copy_importlib_resources_dir_tree(
-        src_path: ir.abc.Traversable, target_path: Path
+        src_path: Any, target_path: Path
     ) -> None:
         """
         Uses a given source path "scr_path" given as an importlib_resources.abc.Traversable to copy all files/directories

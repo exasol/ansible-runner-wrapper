@@ -7,14 +7,31 @@ from exasol.ansible.runner.ansible_access import (
 )
 from exasol.ansible.runner.ansible_run_context import AnsibleRunContext
 from exasol.ansible.runner.facts import AnsibleFacts
+from exasol.ansible.runner.inventory import InventoryHost
 from exasol.ds.sandbox.lib.logging import (
     LogType,
     get_status_logger,
 )
-from exasol.ds.sandbox.lib.render_template import render_template
-from exasol.ds.sandbox.lib.setup_ec2.host_info import HostInfo
 
 LOG = get_status_logger(LogType.ANSIBLE)
+INVENTORY_GROUP_NAME = "test_targets"
+
+
+def _inventory_line(inventory_host: InventoryHost) -> str:
+    if inventory_host.ssh_private_key:
+        return (
+            f"{inventory_host.host_name} "
+            f"ansible_ssh_private_key_file={inventory_host.ssh_private_key}"
+        )
+    return inventory_host.host_name
+
+
+def render_inventory(inventory_hosts: tuple[InventoryHost, ...]) -> str:
+    header = f"[{INVENTORY_GROUP_NAME}]\n\n"
+    if not inventory_hosts:
+        return header
+    body = "\n".join(_inventory_line(host) for host in inventory_hosts)
+    return f"{header}{body}\n\n"
 
 
 class DurationHandler(logging.StreamHandler):
@@ -60,9 +77,9 @@ class AnsibleRunner:
     def run(
             self,
             ansible_run_context: AnsibleRunContext,
-            host_infos: tuple[HostInfo],
+            inventory_hosts: tuple[InventoryHost, ...] = (),
     ) -> AnsibleFacts:
-        inventory_content = render_template("inventory.jinja", host_infos=host_infos)
+        inventory_content = render_inventory(inventory_hosts)
         with open(self._work_dir / "inventory", "w") as f:
             f.write(inventory_content)
 

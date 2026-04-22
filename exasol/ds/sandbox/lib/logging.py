@@ -3,7 +3,10 @@
 import logging
 from enum import Enum
 
-from rich.logging import RichHandler
+try:
+    from rich.logging import RichHandler
+except ImportError:  # pragma: no cover
+    RichHandler = logging.StreamHandler
 
 SUPPORTED_LOG_LEVELS = {
     "normal": logging.WARNING,
@@ -13,17 +16,7 @@ SUPPORTED_LOG_LEVELS = {
 
 
 class LogType(Enum):
-    SETUP = "setup"
-    EXPORT = "export"
-    S3_BUCKETS = "s3_buckets"
-    SETUP_CI_CODEBUILD = "setup_ci_codebuild"
-    AWS_ACCESS = "aws_access"
     ANSIBLE = "ansible"
-    DOCKER_IMAGE = "docker_image"
-    CREATE_VM = "create_vm"
-    SETUP_RELEASE_BUILD = "setup_release_build"
-    RELEASE_BUILD = "release_build"
-    RELEASE_ACCESS = "release_access"
 
 
 def get_status_logger(log_type: LogType) -> logging.Logger:

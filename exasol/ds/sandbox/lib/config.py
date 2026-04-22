@@ -1,20 +1,24 @@
-from importlib_metadata import version
+try:
+    from importlib.metadata import (
+        PackageNotFoundError,
+        version,
+    )
+except ImportError:  # pragma: no cover
+    from importlib_metadata import (
+        PackageNotFoundError,
+        version,
+    )
 
-# name of the project as specified in file pyproject.toml
-ANSIBLE_RUNNER_WRAPPER_VERSION = version("exasol-ansible-runner-wrapper")
+try:
+    # name of the project as specified in file pyproject.toml
+    ANSIBLE_RUNNER_WRAPPER_VERSION = version("exasol-ansible-runner-wrapper")
+except PackageNotFoundError:  # pragma: no cover
+    ANSIBLE_RUNNER_WRAPPER_VERSION = "0.0.0+local"
 
 _default_config = {
-    # unit: seconds. For GPU AMIs 60 seconds are required.
+    # unit: seconds
     "time_to_wait_for_polling": 60.0,
-    # Source AMI is set to Ubuntu 22.04. Owner id '099720109477' == 'Canonical'
-    "source_ami_filters": {
-        "name": "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*",
-        "owner-id": "099720109477",
-        "architecture": "x86_64",
-        "state": "available",
-    },
     "ansible_runner_wrapper_version": ANSIBLE_RUNNER_WRAPPER_VERSION,
-    "waf_region": "us-east-1",
 }
 
 

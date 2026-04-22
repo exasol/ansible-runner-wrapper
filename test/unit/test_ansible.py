@@ -23,11 +23,11 @@ from exasol.ansible.runner.ansible_run_context import (
     AnsibleRunContext,
     default_ansible_run_context,
 )
-from exasol.ds.sandbox.lib.config import ConfigObject
-from exasol.ds.sandbox.lib.setup_ec2.host_info import HostInfo
-from exasol.ds.sandbox.lib.setup_ec2.run_install_dependencies import (
+from exasol.ansible.runner.inventory import InventoryHost
+from exasol.ansible.runner.run_install_dependencies import (
     run_install_dependencies,
 )
+from exasol.ds.sandbox.lib.config import ConfigObject
 
 
 class AnsibleTestAccess:
@@ -82,7 +82,7 @@ def test_run_ansible_default_values(test_config: ConfigObject):
     run_install_dependencies(
         ansible_access,
         test_config,
-        host_infos=tuple(),
+        inventory_hosts=(),
         ansible_run_context=run_context,
     )
     actual_args = ansible_access.run.call_args.args
@@ -96,12 +96,12 @@ def test_run_ansible_custom_playbook(test_config):
     """
     ansible_access = AnsibleTestAccess()
     ansible_run_context = AnsibleRunContext(
-        playbook="my_playbook.yml", extra_vars=dict()
+        playbook="my_playbook.yml", extra_vars={}
     )
     run_install_dependencies(
         ansible_access,
         test_config,
-        host_infos=tuple(),
+        inventory_hosts=(),
         ansible_run_context=ansible_run_context,
     )
 
@@ -125,7 +125,7 @@ def test_run_ansible_custom_variables(test_config):
     run_install_dependencies(
         ansible_access,
         test_config,
-        host_infos=tuple(),
+        inventory_hosts=(),
         ansible_run_context=ansible_run_context,
     )
     extra_vars = _extra_vars(test_config)
@@ -140,7 +140,7 @@ def test_run_ansible_custom_variables(test_config):
 
 
 def test_run_ansible_check_inventory_empty_host(test_config):
-    empty_inventory = "[ec2]\n\n"
+    empty_inventory = "[test_targets]\n\n"
 
     def check_inventory(work_dir: str, ansible_run_context: AnsibleRunContext):
         with open(
@@ -153,7 +153,7 @@ def test_run_ansible_check_inventory_empty_host(test_config):
 
 
 def test_run_ansible_check_inventory_custom_host(test_config):
-    custom_inventory = "[ec2]\n\nmy_host ansible_ssh_private_key_file=my_key\n\n"
+    custom_inventory = "[test_targets]\n\nmy_host ansible_ssh_private_key_file=my_key\n\n"
 
     def check_inventory(work_dir: str, ansible_run_context: AnsibleRunContext):
         with open(
@@ -165,7 +165,7 @@ def test_run_ansible_check_inventory_custom_host(test_config):
     run_install_dependencies(
         AnsibleTestAccess(check_inventory),
         test_config,
-        host_infos=(HostInfo("my_host", "my_key"),),
+        inventory_hosts=(InventoryHost("my_host", "my_key"),),
     )
 
 
@@ -204,7 +204,7 @@ def test_run_ansible_check_multiple_repositories(test_config):
     run_install_dependencies(
         AnsibleTestAccess(check_playbooks),
         test_config,
-        host_infos=tuple(),
+        inventory_hosts=(),
         ansible_run_context=default_ansible_run_context,
         ansible_repositories=test_repositories,
     )
@@ -222,7 +222,7 @@ def test_run_ansible_check_multiple_repositories_with_same_content_causes_except
         run_install_dependencies(
             AnsibleTestAccess(),
             test_config,
-            host_infos=tuple(),
+            inventory_hosts=(),
             ansible_run_context=default_ansible_run_context,
             ansible_repositories=test_repositories,
         )
