@@ -23,16 +23,20 @@ class AnsibleContextManager:
         self._work_dir = tempfile.TemporaryDirectory()
         work_path = Path(self._work_dir.name)
 
-        # track file paths relative to repo roots
         seen_files = set()
 
         for repo in self._ansible_repositories:
 
-            # ❗ copy everything using repository API
+            before = set(work_path.rglob("*"))
+
             repo.copy_to(work_path)
 
-            # ❗ detect duplicates based on relative paths in repo copies
-            for file_path in work_path.rglob("*"):
+            after = set(work_path.rglob("*"))
+
+            # only files introduced by THIS repo
+            new_files = after - before
+
+            for file_path in new_files:
                 if file_path.is_file():
                     relative = file_path.relative_to(work_path)
 
