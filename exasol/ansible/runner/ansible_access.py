@@ -2,13 +2,14 @@ import json
 import logging
 from dataclasses import dataclass
 from typing import (
+    Any,
     Callable,
     Dict,
     NewType,
     Optional,
 )
 
-import ansible_runner
+from exasol.ansible.runner import ansible_runner
 
 from exasol.ansible.runner.ansible_run_context import AnsibleRunContext
 from exasol.ansible.runner.facts import AnsibleFacts
@@ -17,7 +18,7 @@ from exasol.ds.sandbox.lib.logging import (
     get_status_logger,
 )
 
-AnsibleEvent = NewType('AnsibleEvent', Dict[str, any])
+AnsibleEvent = NewType('AnsibleEvent', Dict[str, Any])
 
 
 class AnsibleException(RuntimeError):
