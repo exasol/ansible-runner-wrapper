@@ -58,16 +58,19 @@ def _extra_vars(config):
 def _run_context(
     other: AnsibleRunContext,
     extra_vars: dict[str, Any] | None = None,
-    config: ConfigObject | None = None,
+) -> AnsibleRunContext:
+    return AnsibleRunContext(playbook=other.playbook, extra_vars=extra_vars or {})
+
+
+def _run_context_from_config(
+    other: AnsibleRunContext,
+    config: ConfigObject,
 ):
-    if config:
-        extra_vars = {
-            "ansible_runner_wrapper_version": config.ansible_runner_wrapper_version,
-            "work_in_progress_notebooks": False,
-        }
-    else:
-        extra_vars = extra_vars or {}
-    return AnsibleRunContext(playbook=other.playbook, extra_vars=extra_vars)
+    extra_vars = {
+        "ansible_runner_wrapper_version": config.ansible_runner_wrapper_version,
+        "work_in_progress_notebooks": False,
+    }
+    return _run_context(other, extra_vars=extra_vars)
 
 
 def test_run_ansible_default_values(test_config: ConfigObject):
@@ -81,7 +84,7 @@ def test_run_ansible_default_values(test_config: ConfigObject):
     )
     actual_args = ansible_access.run.call_args.args
     assert actual_args[0].startswith("/tmp/")
-    assert actual_args[1] == _run_context(run_context, config=test_config)
+    assert actual_args[1] == _run_context_from_config(run_context, test_config)
 
 
 def test_run_ansible_custom_playbook(test_config):
