@@ -1,15 +1,11 @@
 import json
 import logging
-from dataclasses import dataclass
 from typing import (
     Any,
     Callable,
     Dict,
     NewType,
-    Optional,
 )
-
-from exasol.ansible.runner import ansible_runner
 
 from exasol.ansible.runner.ansible_run_context import AnsibleRunContext
 from exasol.ansible.runner.facts import AnsibleFacts
@@ -37,7 +33,12 @@ class AnsibleAccess:
             event_logger: Callable[[str], None],
             event_handler: Callable[[AnsibleEvent], bool] = None,
     ) -> AnsibleFacts:
+
+        # Lazy import breaks circular dependency
+        from exasol.ansible.runner import ansible_runner
+
         quiet = not get_status_logger(LogType.ANSIBLE).isEnabledFor(logging.INFO)
+
         r = ansible_runner.run(
             private_data_dir=private_data_dir,
             playbook=run_ctx.playbook,
@@ -45,15 +46,17 @@ class AnsibleAccess:
             event_handler=event_handler,
             extravars=run_ctx.extra_vars,
         )
+
         for e in r.events:
             event_logger(json.dumps(e, indent=2))
 
         if r.rc != 0:
             raise AnsibleException(r.rc)
 
-        if not "docker_container" in run_ctx.extra_vars:
+        if "docker_container" not in run_ctx.extra_vars:
             return AnsibleFacts({})
 
         host = run_ctx.extra_vars["docker_container"]
         fact_cache = r.get_fact_cache(host)
+
         return AnsibleFacts(fact_cache)
