@@ -5,7 +5,6 @@ import pytest
 from exasol.ds.sandbox.lib.config import default_config_object
 
 pytest_plugins = (
-    "test.docker.dss_docker_image",
     "test.aws.fixtures",
 )
 
