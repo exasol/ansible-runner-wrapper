@@ -8,11 +8,6 @@ from exasol.ansible.runner.ansible_runner import AnsibleRunner
 
 
 class AnsibleContextManager:
-    """
-    Context manager which creates a temporary working directory where ansible files are stored.
-    During creation, the content of all given ansible repositories is copied to the temporary directory.
-    Deletes the directory during cleanup.
-    """
 
     def __init__(self, ansible_access: AnsibleAccess, repositories: Tuple[AnsibleRepository]):
         self._work_dir = None
@@ -27,13 +22,16 @@ class AnsibleContextManager:
 
         for repo in self._ansible_repositories:
 
-            # ❗ copy first (keep repo abstraction intact)
+            # capture state BEFORE copy
+            before = set(work_path.rglob("*"))
+
             repo.copy_to(work_path)
 
-            # ❗ THEN validate by scanning repo's own contribution ONLY once
-            repo_files = set(work_path.rglob("*"))
+            # compute only what was introduced by this repo
+            after = set(work_path.rglob("*"))
+            new_files = after - before
 
-            for file_path in repo_files:
+            for file_path in new_files:
                 if file_path.is_file():
                     relative = file_path.relative_to(work_path)
 
