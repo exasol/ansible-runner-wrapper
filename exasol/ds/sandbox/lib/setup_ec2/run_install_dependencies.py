@@ -1,12 +1,12 @@
 from importlib.metadata import version
 from typing import Tuple
 
-from exasol.ds.sandbox.lib.ansible.facts import AnsibleFacts
-from exasol.ds.sandbox.lib.ansible.ansible_access import AnsibleAccess
-from exasol.ds.sandbox.lib.ansible.ansible_context_manager import AnsibleContextManager
-from exasol.ds.sandbox.lib.ansible.ansible_repository import AnsibleRepository, \
+from exasol.ansible.runner.facts import AnsibleFacts
+from exasol.ansible.runner.ansible_access import AnsibleAccess
+from exasol.ansible.runner.ansible_context_manager import AnsibleContextManager
+from exasol.ansible.runner.ansible_repository import AnsibleRepository, \
     default_repositories
-from exasol.ds.sandbox.lib.ansible.ansible_run_context import AnsibleRunContext, \
+from exasol.ansible.runner.ansible_run_context import AnsibleRunContext, \
     default_ansible_run_context
 from exasol.ds.sandbox.lib.config import ConfigObject
 
