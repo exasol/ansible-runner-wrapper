@@ -57,8 +57,8 @@ def _extra_vars(config):
 
 def _run_context(
     other: AnsibleRunContext,
-    config: ConfigObject | None = None,
     extra_vars: dict[str, Any] | None = None,
+    config: ConfigObject | None = None,
 ):
     if config:
         extra_vars = {
