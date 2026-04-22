@@ -26,20 +26,16 @@ class AnsibleContextManager:
         copied_files = set()
 
         for repo in self._ansible_repositories:
-            for file_path in repo.path.rglob("*"):
+
+            # copy using existing abstraction
+            repo.copy_to(work_path)
+
+            # ❗ enforce duplicate detection AFTER copy
+            for file_path in work_path.rglob("*"):
                 if file_path.is_file():
-
-                    relative = file_path.relative_to(repo.path)
-                    target = work_path / relative
-
-                    # ❗ required by tests: detect duplicate files across repos
-                    if target in copied_files or target.exists():
-                        raise RuntimeError(f"Duplicate file in repositories: {relative}")
-
-                    target.parent.mkdir(parents=True, exist_ok=True)
-                    target.write_bytes(file_path.read_bytes())
-
-                    copied_files.add(target)
+                    if file_path in copied_files:
+                        raise RuntimeError(f"Duplicate file detected: {file_path.relative_to(work_path)}")
+                    copied_files.add(file_path)
 
         return AnsibleRunner(self._ansible_access, work_path)
 
