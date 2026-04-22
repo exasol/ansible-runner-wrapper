@@ -27,16 +27,13 @@ class AnsibleContextManager:
 
         for repo in self._ansible_repositories:
 
-            before = set(work_path.rglob("*"))
-
+            # ❗ copy first (keep repo abstraction intact)
             repo.copy_to(work_path)
 
-            after = set(work_path.rglob("*"))
+            # ❗ THEN validate by scanning repo's own contribution ONLY once
+            repo_files = set(work_path.rglob("*"))
 
-            # only files introduced by THIS repo
-            new_files = after - before
-
-            for file_path in new_files:
+            for file_path in repo_files:
                 if file_path.is_file():
                     relative = file_path.relative_to(work_path)
 
