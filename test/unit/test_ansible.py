@@ -4,11 +4,11 @@ from typing import Callable, Optional
 
 import pytest
 
-from exasol.ds.sandbox.lib.ansible.ansible_repository import default_repositories, \
+from exasol.ansible.runner.ansible_repository import default_repositories, \
     AnsibleResourceRepository
-from exasol.ds.sandbox.lib.ansible.ansible_run_context import AnsibleRunContext, \
+from exasol.ansible.runner.ansible_run_context import AnsibleRunContext, \
     default_ansible_run_context
-from exasol.ds.sandbox.lib.ansible.ansible_access import AnsibleEvent
+from exasol.ansible.runner.ansible_access import AnsibleEvent
 from exasol.ds.sandbox.lib.setup_ec2.host_info import HostInfo
 from exasol.ds.sandbox.lib.setup_ec2.run_install_dependencies import run_install_dependencies
 

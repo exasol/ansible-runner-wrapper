@@ -4,12 +4,12 @@ import logging
 from pathlib import Path
 from typing import Tuple
 
-from exasol.ds.sandbox.lib.ansible.facts import AnsibleFacts
-from exasol.ds.sandbox.lib.ansible.ansible_access import (
+from exasol.ansible.runner.facts import AnsibleFacts
+from exasol.ansible.runner.ansible_access import (
     AnsibleAccess,
     AnsibleEvent,
 )
-from exasol.ds.sandbox.lib.ansible.ansible_run_context import AnsibleRunContext
+from exasol.ansible.runner.ansible_run_context import AnsibleRunContext
 from exasol.ds.sandbox.lib.logging import get_status_logger, LogType
 from exasol.ds.sandbox.lib.setup_ec2.host_info import HostInfo
 from exasol.ds.sandbox.lib.render_template import render_template
