@@ -1,7 +1,7 @@
 from importlib_metadata import version
 
 # name of the project as specified in file pyproject.toml
-AI_LAB_VERSION = version("exasol-ai-lab")
+ANSIBLE_RUNNER_WRAPPER_VERSION = version("exasol-ansible-runner-wrapper")
 
 _default_config = {
     # unit: seconds. For GPU AMIs 60 seconds are required.
@@ -13,7 +13,7 @@ _default_config = {
         "architecture": "x86_64",
         "state": "available"
     },
-    "ai_lab_version": AI_LAB_VERSION,
+    "ansible_runner_wrapper_version": ANSIBLE_RUNNER_WRAPPER_VERSION,
     "waf_region": "us-east-1"
 }
 

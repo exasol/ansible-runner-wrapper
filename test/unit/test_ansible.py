@@ -36,7 +36,7 @@ class AnsibleTestAccess:
 
 def _extra_vars(config):
     return {
-        "ai_lab_version": config.ai_lab_version,
+        "ansible_runner_wrapper_version": config.ansible_runner_wrapper_version,
         'work_in_progress_notebooks': False,
     }
 
@@ -117,7 +117,7 @@ def test_run_ansible_check_default_repository(test_config):
     """
 
     def check_playbook(work_dir: str, ansible_run_context: AnsibleRunContext):
-        p = pathlib.Path(work_dir) / "ai_lab_docker_playbook.yml"
+        p = pathlib.Path(work_dir) / "ansible_runner_wrapper_docker_playbook.yml"
         assert p.exists()
         p = pathlib.Path(work_dir) / "roles" / "jupyter" / "tasks" / "main.yml"
         assert p.exists()

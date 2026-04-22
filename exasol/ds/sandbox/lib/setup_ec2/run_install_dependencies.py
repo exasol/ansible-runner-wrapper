@@ -28,7 +28,7 @@ def run_install_dependencies(
     The playbook is indicated by variable ansible_run_context, which also might contain additional ansible variables.
     """
     new_extra_vars = {
-        "ai_lab_version": configuration.ai_lab_version,
+        "ansible_runner_wrapper_version": configuration.ansible_runner_wrapper_version,
         "work_in_progress_notebooks": False
     }
     if ansible_run_context.extra_vars is not None:
