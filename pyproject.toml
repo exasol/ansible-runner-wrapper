@@ -20,7 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.14"
 
 ]
-dependencies = ["importlib-metadata (>=9.0.0,<10.0.0)"]
+dependencies = ["importlib-metadata (>=9.0.0,<10.0.0)", "ansible-runner (>=2.4.3,<3.0.0)"]
 
 [dependency-groups]
 dev = [
