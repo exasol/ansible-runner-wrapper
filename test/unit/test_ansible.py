@@ -4,6 +4,7 @@ import test.ansible
 import test.unit.resources
 from collections import namedtuple
 from collections.abc import Callable
+from pathlib import Path
 from typing import (
     Any,
 )
@@ -15,7 +16,10 @@ from exasol.ansible.runner.ansible_access import (
     AnsibleAccess,
     AnsibleEvent,
 )
+from exasol.ansible.runner.ansible_context_manager import AnsibleContextManager
 from exasol.ansible.runner.ansible_repository import (
+    AnsibleAsset,
+    AnsibleRepository,
     AnsibleResourceRepository,
     default_repositories,
 )
@@ -49,6 +53,29 @@ class AnsibleTestAccess:
         self.call_arguments = self.arguments(private_data_dir, run_ctx)
         if self.delegate is not None:
             self.delegate(private_data_dir, run_ctx)
+
+
+class StubAsset(AnsibleAsset):
+    def __init__(self, relative_path: Path, occupied_path_types: dict[Path, str]):
+        super().__init__(relative_path)
+        self._occupied_path_types = occupied_path_types
+
+    def copy_to(self, target_root: Path) -> None:
+        pass
+
+    def occupied_paths(self) -> set[Path]:
+        return set(self._occupied_path_types)
+
+    def occupied_path_types(self) -> dict[Path, str]:
+        return self._occupied_path_types
+
+
+class StubRepository(AnsibleRepository):
+    def __init__(self, assets: tuple[AnsibleAsset, ...]):
+        self._assets = assets
+
+    def get_assets(self) -> tuple[AnsibleAsset, ...]:
+        return self._assets
 
 
 def _extra_vars(config):
@@ -186,6 +213,22 @@ def test_run_ansible_check_default_repository(test_config):
     run_install_dependencies(AnsibleTestAccess(check_playbook), test_config)
 
 
+def test_default_repository_enumerates_assets():
+    assets = default_repositories[0].get_assets()
+    relative_paths = sorted(str(asset.relative_path) for asset in assets)
+    assert relative_paths == [
+        "ansible_runner_wrapper_docker_playbook.yml",
+        "general_setup_tasks.yml",
+        "roles",
+    ]
+
+
+def test_repository_ignores_init_py_when_enumerating_assets():
+    assets = AnsibleResourceRepository(test.ansible).get_assets()
+    relative_paths = [asset.relative_path for asset in assets]
+    assert relative_paths == [Path("ansible_sample_playbook.yml")]
+
+
 def test_run_ansible_check_multiple_repositories(test_config):
     """
     Test that multiple repositories are being copied correctly.
@@ -225,4 +268,27 @@ def test_run_ansible_check_multiple_repositories_with_same_content_causes_except
             inventory_hosts=(),
             ansible_run_context=default_ansible_run_context,
             ansible_repositories=test_repositories,
+        )
+
+
+def test_context_manager_rejects_directory_file_conflicts():
+    file_repo = StubRepository(
+        (StubAsset(Path("roles"), {Path("roles"): "file"}),)
+    )
+    directory_repo = StubRepository(
+        (
+            StubAsset(
+                Path("roles"),
+                {
+                    Path("roles"): "directory",
+                    Path("roles/jupyter"): "directory",
+                    Path("roles/jupyter/tasks"): "directory",
+                },
+            ),
+        )
+    )
+
+    with pytest.raises(RuntimeError, match="Path collision detected: roles"):
+        AnsibleContextManager._validate_assets(
+            file_repo.get_assets() + directory_repo.get_assets()
         )
