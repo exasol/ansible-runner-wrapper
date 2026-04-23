@@ -6,6 +6,11 @@ from typing import (
     NewType,
 )
 
+# import the real final ansible runner from
+# https://pypi.org/project/ansible-runner/
+# https://github.com/ansible/ansible-runner
+# https://docs.ansible.com/projects/runner/en/latest/python_interface/
+import ansible_runner
 from exasol.ansible.runner.ansible_run_context import AnsibleRunContext
 from exasol.ansible.runner.facts import AnsibleFacts
 from exasol.ds.sandbox.lib.logging import (
@@ -33,12 +38,7 @@ class AnsibleAccess:
         event_logger: Callable[[str], None],
         event_handler: Callable[[AnsibleEvent], bool] = None,
     ) -> AnsibleFacts:
-
-        # Lazy import breaks circular dependency
-        from exasol.ansible.runner import ansible_runner
-
         quiet = not get_status_logger(LogType.ANSIBLE).isEnabledFor(logging.INFO)
-
         r = ansible_runner.run(
             private_data_dir=private_data_dir,
             playbook=run_ctx.playbook,
