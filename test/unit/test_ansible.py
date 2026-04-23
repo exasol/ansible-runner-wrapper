@@ -1,7 +1,7 @@
 import pathlib
 import tempfile
 import test.ansible
-import test.unit.resources.ansible_conflict
+import test.unit.resources
 from collections import namedtuple
 from collections.abc import Callable
 from typing import (
@@ -216,7 +216,7 @@ def test_run_ansible_check_multiple_repositories_with_same_content_causes_except
     """
     Test that multiple repositories containing same files raises an runtime exception.
     """
-    conflict = AnsibleResourceRepository(test.unit.resources.ansible_conflict)
+    conflict = AnsibleResourceRepository(test.unit.resources)
     test_repositories = default_repositories + (conflict,)
     with pytest.raises(RuntimeError):
         run_install_dependencies(
