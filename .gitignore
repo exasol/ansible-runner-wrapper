@@ -152,3 +152,6 @@ itde/
 /.lint.txt
 /.security.json
 /.sonar
+
+# draw.io
+*.bkp
