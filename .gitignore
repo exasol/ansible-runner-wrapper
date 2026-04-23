@@ -14,8 +14,9 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+/lib/
 lib64/
+/out
 parts/
 sdist/
 var/
@@ -151,3 +152,6 @@ itde/
 /.lint.txt
 /.security.json
 /.sonar
+
+# draw.io
+*.bkp
