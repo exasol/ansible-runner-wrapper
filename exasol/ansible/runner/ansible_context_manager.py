@@ -29,12 +29,19 @@ def AnsibleContextManager(
     repositories: tuple[AnsibleRepository],
     work_dir: Path | None = None,
 ):
+    """
+    Create a temporary Ansible execution context from the given repositories.
+
+    Args:
+        ansible_access: Access configuration used by the created
+            ``AnsibleRunner``.
+        repositories: Repositories whose assets are copied into the temporary
+            execution directory.
+        work_dir: Optional working directory to use instead of creating a new
+            temporary directory.
+    """
     work_dir = work_dir or tempfile.TemporaryDirectory()
-    assets = tuple(
-        asset
-        for repo in repositories
-        for asset in repo.get_assets()
-    )
+    assets = tuple(asset for repo in repositories for asset in repo.get_assets())
     _validate_assets(assets)
     relative = Path(work_dir.name)
     for asset in assets:

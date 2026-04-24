@@ -155,3 +155,6 @@ itde/
 
 # draw.io
 *.bkp
+
+# codex
+/.codex

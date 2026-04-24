@@ -1,16 +1,18 @@
+from abc import abstractmethod
 from pathlib import Path
 from typing import Any
-
-try:
-    import importlib.resources as ir
-except ImportError:  # pragma: no cover
-    import importlib_resources as ir
 
 import exasol.ds.sandbox.runtime.ansible
 from exasol.ds.sandbox.lib.logging import (
     LogType,
     get_status_logger,
 )
+
+try:
+    import importlib.resources as ir
+except ImportError:  # pragma: no cover
+    import importlib_resources as ir  # type: ignore[no-redef]
+
 
 LOG = get_status_logger(LogType.ANSIBLE)
 
@@ -23,10 +25,14 @@ def _should_ignore(path: Any) -> bool:
 
 
 class AnsibleAsset:
+    """
+    Abstract representation of a copyable ansible asset within a repository.
+    """
 
     def __init__(self, relative_path: Path):
         self.relative_path = relative_path
 
+    @abstractmethod
     def copy_to(self, target_root: Path) -> None:
         """
         Copy this asset into the given target root.
@@ -47,6 +53,9 @@ class AnsibleAsset:
 
 
 class AnsibleRepository:
+    """
+    Abstract source of top-level ansible assets.
+    """
 
     def get_assets(self) -> tuple[AnsibleAsset, ...]:
         """
@@ -125,7 +134,9 @@ class ImportlibDirectoryAsset(AnsibleAsset):
         return self._occupied_paths(self._src_path, self.relative_path)
 
     @classmethod
-    def _occupied_path_types(cls, src_path: Any, relative_path: Path) -> dict[Path, str]:
+    def _occupied_path_types(
+        cls, src_path: Any, relative_path: Path
+    ) -> dict[Path, str]:
         occupied = {relative_path: "directory"}
         for file in src_path.iterdir():
             if _should_ignore(file):
@@ -156,7 +167,7 @@ class AnsibleResourceRepository(AnsibleRepository):
         Enumerate the repository as top-level copyable assets.
         """
         source_path = ir.files(self._package)
-        assets = []
+        assets: list[AnsibleAsset] = []
         for file in source_path.iterdir():
             if _should_ignore(file):
                 continue
