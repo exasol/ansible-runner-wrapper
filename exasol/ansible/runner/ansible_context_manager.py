@@ -49,13 +49,14 @@ def ansible_context_manager(
         work_dir: Optional working directory to use instead of creating a new
             temporary directory.
     """
-    work_dir = work_dir or tempfile.TemporaryDirectory()
-    relative = Path(work_dir.name)
-    copier = AssetCopier(relative)
-    for repo in repositories:
-        for asset in repo.get_assets():
-            copier.copy(asset)
+    with contextlib.ExitStack() as stack:
+        if not work_dir:
+            temp_dir = stack.enter_context(tempfile.TemporaryDirectory())
+            work_dir = Path(temp_dir)
 
-    yield AnsibleRunner(ansible_access, relative)
+        copier = AssetCopier(work_dir)
+        for repo in repositories:
+            for asset in repo.get_assets():
+                copier.copy(asset)
 
-    work_dir.cleanup()
+        yield AnsibleRunner(ansible_access, work_dir)

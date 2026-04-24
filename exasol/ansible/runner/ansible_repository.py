@@ -1,6 +1,9 @@
 from abc import abstractmethod
 from pathlib import Path
-from typing import Any
+from typing import (
+    Any,
+    Iterable,
+)
 
 import exasol.ds.sandbox.runtime.ansible
 from exasol.ds.sandbox.lib.logging import (
@@ -56,7 +59,7 @@ class AnsibleRepository:
     """
 
     @abstractmethod
-    def get_assets(self) -> tuple[AnsibleAsset, ...]:
+    def get_assets(self) -> Iterable[AnsibleAsset]:
         """
         Base class does not implement asset enumeration.
 
@@ -95,41 +98,30 @@ class ImportlibDirectoryAsset(AnsibleAsset):
         self._src_path = src_path
 
     @classmethod
-    def _copy_dir_tree(cls, src_path: Any, target_path: Path) -> None:
-        if not target_path.exists():
-            target_path.mkdir()
-        for file in src_path.iterdir():
-            if _should_ignore(file):
+    def _paths(cls, src_path: Any, relative_path: Path) -> Iterable[tuple[Path, str]]:
+        yield relative_path, "directory"
+        for child in src_path.iterdir():
+            if _should_ignore(child):
                 continue
-            file_target = target_path / file.name
-            if file.is_file():
-                content = file.read_bytes()
-                with open(file_target, "wb") as target_file:
-                    target_file.write(content)
+            child_path = relative_path / child.name
+            if child.is_file():
+                yield child_path, "file"
             else:
-                file_target.mkdir(exist_ok=True)
-                cls._copy_dir_tree(file, file_target)
+                yield from cls._paths(child, child_path)
 
     def copy_to(self, target_root: Path) -> None:
-        self._copy_dir_tree(self._src_path, target_root / self.relative_path)
-
-    @classmethod
-    def _paths(
-        cls, src_path: Any, relative_path: Path
-    ) -> dict[Path, str]:
-        occupied = {relative_path: "directory"}
-        for file in src_path.iterdir():
-            if _should_ignore(file):
-                continue
-            child_relative_path = relative_path / file.name
-            if file.is_file():
-                occupied[child_relative_path] = "file"
+        items = self._paths(self._src_path, self.relative_path)
+        for path, _ in items:
+            target = target_root / path
+            if path.is_file():
+                content = path.read_bytes()
+                with open(target, "wb") as f:
+                    f.write(content)
             else:
-                occupied.update(cls._paths(file, child_relative_path))
-        return occupied
+                target.mkdir(exist_ok=True)
 
     def paths(self) -> dict[Path, str]:
-        return self._paths(self._src_path, self.relative_path)
+        return dict(self._paths(self._src_path, self.relative_path))
 
 
 class ImportlibRepository(AnsibleRepository):
@@ -142,20 +134,18 @@ class ImportlibRepository(AnsibleRepository):
     def __init__(self, package):
         self._package = package
 
-    def get_assets(self) -> tuple[AnsibleAsset, ...]:
+    def get_assets(self) -> Iterable[AnsibleAsset]:
         """
-        Enumerate the repository as top-level copyable assets.
+        Traverse the repository and yield all copyable assets below it.
         """
         source_path = ir.files(self._package)
-        assets: list[AnsibleAsset] = []
-        for file in source_path.iterdir():
-            if _should_ignore(file):
+        for child in source_path.iterdir():
+            if _should_ignore(child):
                 continue
-            if file.is_file():
-                assets.append(ImportlibFileAsset(file, Path(file.name)))
+            if child.is_file():
+                yield ImportlibFileAsset(child, Path(child.name))
             else:
-                assets.append(ImportlibDirectoryAsset(file, Path(file.name)))
-        return tuple(assets)
+                yield ImportlibDirectoryAsset(child, Path(child.name))
 
 
 default_repositories = (ImportlibRepository(exasol.ds.sandbox.runtime.ansible),)
