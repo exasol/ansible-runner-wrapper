@@ -14,11 +14,12 @@ from unittest.mock import Mock
 
 import pytest
 
+from exasol.ansible.runner import ansible_context_manager
 from exasol.ansible.runner.ansible_access import (
     AnsibleAccess,
     AnsibleEvent,
 )
-from exasol.ansible.runner import ansible_context_manager
+from exasol.ansible.runner.ansible_context_manager import FilenameConflict
 from exasol.ansible.runner.ansible_repository import (
     AnsibleAsset,
     AnsibleRepository,
@@ -263,7 +264,7 @@ def test_conflict(test_config, module):
     package = importlib.import_module(f"test.unit.resources.conflict.{module}")
     conflict = ImportlibRepository(package)
     repositories = default_repositories + (conflict,)
-    with pytest.raises(RuntimeError):
+    with pytest.raises(FilenameConflict):
         run_install_dependencies(
             Mock(),
             test_config,
@@ -290,7 +291,7 @@ def test_context_manager_rejects_directory_file_conflicts():
         )
     )
 
-    with pytest.raises(RuntimeError, match="Path collision detected: roles"):
+    with pytest.raises(FilenameConflict, match="Path collision detected: roles"):
         ansible_context_manager._validate_assets(
             file_repo.get_assets() + directory_repo.get_assets()
         )

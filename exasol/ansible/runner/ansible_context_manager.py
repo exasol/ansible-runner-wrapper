@@ -10,6 +10,13 @@ from exasol.ansible.runner.ansible_repository import (
 from exasol.ansible.runner.ansible_runner import AnsibleRunner
 
 
+class FilenameConflict(RuntimeError):
+    """
+    Signals duplicate filenames or files vs. directories when using
+    multiple instances of AnsibleRepository.
+    """
+
+
 @staticmethod
 def _validate_assets(assets: tuple[AnsibleAsset, ...]) -> None:
     path_types: dict[Path, str] = {}
@@ -18,8 +25,8 @@ def _validate_assets(assets: tuple[AnsibleAsset, ...]) -> None:
             existing_type = path_types.get(occupied_path)
             if existing_type is not None:
                 if existing_type == path_type == "file":
-                    raise RuntimeError(f"Duplicate file detected: {occupied_path}")
-                raise RuntimeError(f"Path collision detected: {occupied_path}")
+                    raise FilenameConflict(f"Duplicate file detected: {occupied_path}")
+                raise FilenameConflict(f"Path collision detected: {occupied_path}")
             path_types[occupied_path] = path_type
 
 
