@@ -24,7 +24,7 @@ def _validate_assets(assets: tuple[AnsibleAsset, ...]) -> None:
 
 
 @contextlib.contextmanager
-def AnsibleContextManager(
+def ansible_context_manager(
     ansible_access: AnsibleAccess,
     repositories: tuple[AnsibleRepository],
     work_dir: Path | None = None,
