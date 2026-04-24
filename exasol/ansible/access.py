@@ -24,6 +24,7 @@ class AnsibleException(RuntimeError):
     pass
 
 
+# For this class it is recommended to add an integration test.
 class Access:
     """
     Provides access to ansible runner.
