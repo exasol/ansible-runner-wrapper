@@ -207,7 +207,7 @@ def test_repository_ignores_init_py_when_enumerating_assets():
     package = importlib.import_module("test.unit.resources.ignored_files")
     assets = ImportlibRepository(package).get_assets()
     relative_paths = [asset.relative_path for asset in assets]
-    assert relative_paths == [Path("ansible_sample_playbook.yml")]
+    assert relative_paths == [Path("playbook.yml")]
 
 
 def test_run_ansible_check_multiple_repositories(test_config):
