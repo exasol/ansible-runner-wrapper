@@ -1,5 +1,5 @@
 from exasol.ansible.runner.ansible_access import AnsibleAccess
-from exasol.ansible.runner.ansible_context_manager import AnsibleContextManager
+from exasol.ansible.runner.ansible_context_manager import ansible_context_manager
 from exasol.ansible.runner.ansible_repository import (
     AnsibleRepository,
     default_repositories,
@@ -33,7 +33,7 @@ def run_install_dependencies(
     new_ansible_run_context = AnsibleRunContext(
         ansible_run_context.playbook, new_extra_vars
     )
-    with AnsibleContextManager(ansible_access, ansible_repositories) as ansible_runner:
+    with ansible_context_manager(ansible_access, ansible_repositories) as ansible_runner:
         facts = ansible_runner.run(
             new_ansible_run_context,
             inventory_hosts=inventory_hosts,

@@ -1,47 +1,62 @@
+import contextlib
 import tempfile
 from pathlib import Path
 
 from exasol.ansible.runner.ansible_access import AnsibleAccess
-from exasol.ansible.runner.ansible_repository import AnsibleRepository
+from exasol.ansible.runner.ansible_repository import (
+    AnsibleAsset,
+    AnsibleRepository,
+)
 from exasol.ansible.runner.ansible_runner import AnsibleRunner
 
 
-class AnsibleContextManager:
+class FilenameConflict(RuntimeError):
+    """
+    Signals duplicate filenames or files vs. directories when using
+    multiple instances of AnsibleRepository.
+    """
 
-    def __init__(
-        self, ansible_access: AnsibleAccess, repositories: tuple[AnsibleRepository]
-    ):
-        self._work_dir = None
-        self._ansible_access = ansible_access
-        self._ansible_repositories = repositories
 
-    def __enter__(self):
-        self._work_dir = tempfile.TemporaryDirectory()
-        work_path = Path(self._work_dir.name)
+class AssetCopier:
+    def __init__(self, relative_target: Path):
+        self.target = relative_target
+        self._seen: dict[Path, str] = {}
 
-        seen_files = set()
+    def copy(self, asset: AnsibleAsset) -> None:
+        for path, ptype in asset.paths().items():
+            if (existing := self._seen.get(path)) is not None:
+                if existing == ptype == "file":
+                    raise FilenameConflict(f"Duplicate file detected: {path}")
+                raise FilenameConflict(f"Path collision detected: {path}")
+            self._seen[path] = ptype
+        asset.copy_to(self.target)
 
-        for repo in self._ansible_repositories:
 
-            # capture state BEFORE copy
-            before = set(work_path.rglob("*"))
+@contextlib.contextmanager
+def ansible_context_manager(
+    ansible_access: AnsibleAccess,
+    repositories: tuple[AnsibleRepository],
+    work_dir: Path | None = None,
+):
+    """
+    Create a temporary Ansible execution context from the given repositories.
 
-            repo.copy_to(work_path)
+    Args:
+        ansible_access: Access configuration used by the created
+            ``AnsibleRunner``.
+        repositories: Repositories whose assets are copied into the temporary
+            execution directory.
+        work_dir: Optional working directory to use instead of creating a new
+            temporary directory.
+    """
+    with contextlib.ExitStack() as stack:
+        if not work_dir:
+            temp_dir = stack.enter_context(tempfile.TemporaryDirectory())
+            work_dir = Path(temp_dir)
 
-            # compute only what was introduced by this repo
-            after = set(work_path.rglob("*"))
-            new_files = after - before
+        copier = AssetCopier(work_dir)
+        for repo in repositories:
+            for asset in repo.get_assets():
+                copier.copy(asset)
 
-            for file_path in new_files:
-                if file_path.is_file():
-                    relative = file_path.relative_to(work_path)
-
-                    if relative in seen_files:
-                        raise RuntimeError(f"Duplicate file detected: {relative}")
-
-                    seen_files.add(relative)
-
-        return AnsibleRunner(self._ansible_access, work_path)
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._work_dir.cleanup()
+        yield AnsibleRunner(ansible_access, work_dir)

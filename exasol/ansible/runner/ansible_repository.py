@@ -1,10 +1,9 @@
+from abc import abstractmethod
 from pathlib import Path
-from typing import Any
-
-try:
-    import importlib.resources as ir
-except ImportError:  # pragma: no cover
-    import importlib_resources as ir
+from typing import (
+    Any,
+    Iterable,
+)
 
 import exasol.ds.sandbox.runtime.ansible
 from exasol.ds.sandbox.lib.logging import (
@@ -12,27 +11,120 @@ from exasol.ds.sandbox.lib.logging import (
     get_status_logger,
 )
 
+try:
+    import importlib.resources as ir
+except ImportError:  # pragma: no cover
+    import importlib_resources as ir  # type: ignore[no-redef]
+
+
 LOG = get_status_logger(LogType.ANSIBLE)
 
 
-class AnsibleRepository:
+def _should_ignore(path: Any) -> bool:
+    if path.name in {"__init__.py", "__pycache__"}:
+        LOG.debug(f"Ignoring {path} for repository.")
+        return True
+    return False
 
-    def copy_to(self, target: Path) -> None:
+
+class AnsibleAsset:
+    """
+    Abstract representation of a copyable ansible asset within a repository.
+    """
+
+    def __init__(self, relative_path: Path):
+        self.relative_path = relative_path
+
+    @abstractmethod
+    def copy_to(self, target_root: Path) -> None:
         """
-        Base class does not implement copying.
+        Copy this asset into the given target root.
+        """
+        ...
+
+    @abstractmethod
+    def paths(self) -> dict[Path, str]:
+        """
+        Return the contained paths for this asset.
+
+        The string values in the dict are either "directory" or "file" to
+        signal different types of assets.
+        """
+        ...
+
+
+class AnsibleRepository:
+    """
+    Abstract source of top-level ansible assets.
+    """
+
+    @abstractmethod
+    def get_assets(self) -> Iterable[AnsibleAsset]:
+        """
+        Base class does not implement asset enumeration.
 
         This method is intentionally left empty because:
         - Different repository types (e.g. filesystem-based, package-based)
-          require different copy strategies.
-        - Subclasses like `AnsibleResourceRepository` provide the actual
+          expose different asset sources.
+        - Subclasses like `ImportlibRepository` provide the actual
           implementation using their specific source (e.g. importlib resources).
 
         This class acts as an interface / abstraction layer.
         """
-        pass
+        ...
 
 
-class AnsibleResourceRepository(AnsibleRepository):
+class ImportlibFileAsset(AnsibleAsset):
+
+    def __init__(self, src_file: Any, relative_path: Path):
+        super().__init__(relative_path)
+        self._src_file = src_file
+
+    def copy_to(self, target_root: Path) -> None:
+        target_file = target_root / self.relative_path
+        target_file.parent.mkdir(parents=True, exist_ok=True)
+        content = self._src_file.read_bytes()
+        with open(target_file, "wb") as file:
+            file.write(content)
+
+    def paths(self) -> dict[Path, str]:
+        return {self.relative_path: "file"}
+
+
+class ImportlibDirectoryAsset(AnsibleAsset):
+
+    def __init__(self, src_path: Any, relative_path: Path):
+        super().__init__(relative_path)
+        self._src_path = src_path
+
+    @classmethod
+    def _paths(cls, src_path: Any, relative_path: Path) -> Iterable[tuple[Path, str]]:
+        yield relative_path, "directory"
+        for child in src_path.iterdir():
+            if _should_ignore(child):
+                continue
+            child_path = relative_path / child.name
+            if child.is_file():
+                yield child_path, "file"
+            else:
+                yield from cls._paths(child, child_path)
+
+    def copy_to(self, target_root: Path) -> None:
+        items = self._paths(self._src_path, self.relative_path)
+        for path, _ in items:
+            target = target_root / path
+            if path.is_file():
+                content = path.read_bytes()
+                with open(target, "wb") as f:
+                    f.write(content)
+            else:
+                target.mkdir(exist_ok=True)
+
+    def paths(self) -> dict[Path, str]:
+        return dict(self._paths(self._src_path, self.relative_path))
+
+
+class ImportlibRepository(AnsibleRepository):
     """
     Represents a repository containing ansible files (roles, playbooks, tasks, etc.).
     The repository is expected to be located within a Python module.
@@ -42,61 +134,18 @@ class AnsibleResourceRepository(AnsibleRepository):
     def __init__(self, package):
         self._package = package
 
-    @staticmethod
-    def copy_importlib_resources_file(
-        src_file: Any, target_file: Path
-    ) -> None:
+    def get_assets(self) -> Iterable[AnsibleAsset]:
         """
-        Uses a given source path "src_file" given as an importlib_resources.abc.Traversable to copy the file it points to
-        into the destination denoted by target_path.
-        :param src_file: Location of the file to be copied, given as importlib_resources.abc.Traversable.
-        :param target_file: Path object the location file should be copied to.
-        :raises RuntimeError if parameter target_file already exists.
-        """
-        if src_file.name == "__init__.py":
-            LOG.debug(f"Ignoring {src_file} for repository.")
-            return
-        if target_file.exists():
-            raise RuntimeError(f"Repository target: {target_file} already exists.")
-
-        content = src_file.read_bytes()
-        with open(target_file, "wb") as file:
-            file.write(content)
-
-    @staticmethod
-    def copy_importlib_resources_dir_tree(
-        src_path: Any, target_path: Path
-    ) -> None:
-        """
-        Uses a given source path "scr_path" given as an importlib_resources.abc.Traversable to copy all files/directories
-        in the directory tree whose root is scr_path into target_path.
-        :param src_path: Root of the dir tree to be copied, given as importlib_resources.abc.Traversable.
-        :param target_path: Path object the dir tree should be copied to.
-        :raises RuntimeError if parameter target_file already exists.
-        """
-        if not target_path.exists():
-            target_path.mkdir()
-        for file in src_path.iterdir():
-            file_target = target_path / file.name
-            if file.is_file():
-                AnsibleResourceRepository.copy_importlib_resources_file(
-                    file, file_target
-                )
-            else:
-                file_target.mkdir(exist_ok=True)
-                AnsibleResourceRepository.copy_importlib_resources_dir_tree(
-                    file, file_target
-                )
-
-    def copy_to(self, target: Path) -> None:
-        """
-        Copies this repository recursively to target.
-        If any file already exists on target, a RuntimeError is thrown.
-        :param target: Path object the repository tree should be copied to.
-        :raises RuntimeError if parameter target_file already exists.
+        Traverse the repository and yield all copyable assets below it.
         """
         source_path = ir.files(self._package)
-        self.copy_importlib_resources_dir_tree(source_path, target)
+        for child in source_path.iterdir():
+            if _should_ignore(child):
+                continue
+            if child.is_file():
+                yield ImportlibFileAsset(child, Path(child.name))
+            else:
+                yield ImportlibDirectoryAsset(child, Path(child.name))
 
 
-default_repositories = (AnsibleResourceRepository(exasol.ds.sandbox.runtime.ansible),)
+default_repositories = (ImportlibRepository(exasol.ds.sandbox.runtime.ansible),)
