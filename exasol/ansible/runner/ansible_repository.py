@@ -37,21 +37,17 @@ class AnsibleAsset:
         """
         Copy this asset into the given target root.
         """
-        raise NotImplementedError()
+        ...
 
     @abstractmethod
-    def occupied_paths(self) -> set[Path]:
+    def paths(self) -> dict[Path, str]:
         """
-        Return all relative paths this asset requires in the target tree.
-        """
-        raise NotImplementedError()
+        Return the contained paths for this asset.
 
-    @abstractmethod
-    def occupied_path_types(self) -> dict[Path, str]:
+        The string values in the dict are either "directory" or "file" to
+        signal different types of assets.
         """
-        Return the required path types for this asset.
-        """
-        raise NotImplementedError()
+        ...
 
 
 class AnsibleRepository:
@@ -72,7 +68,7 @@ class AnsibleRepository:
 
         This class acts as an interface / abstraction layer.
         """
-        raise NotImplementedError()
+        ...
 
 
 class ImportlibFileAsset(AnsibleAsset):
@@ -88,10 +84,7 @@ class ImportlibFileAsset(AnsibleAsset):
         with open(target_file, "wb") as file:
             file.write(content)
 
-    def occupied_paths(self) -> set[Path]:
-        return {self.relative_path}
-
-    def occupied_path_types(self) -> dict[Path, str]:
+    def paths(self) -> dict[Path, str]:
         return {self.relative_path: "file"}
 
 
@@ -117,27 +110,11 @@ class ImportlibDirectoryAsset(AnsibleAsset):
                 file_target.mkdir(exist_ok=True)
                 cls._copy_dir_tree(file, file_target)
 
-    @classmethod
-    def _occupied_paths(cls, src_path: Any, relative_path: Path) -> set[Path]:
-        occupied = {relative_path}
-        for file in src_path.iterdir():
-            if _should_ignore(file):
-                continue
-            child_relative_path = relative_path / file.name
-            if file.is_file():
-                occupied.add(child_relative_path)
-            else:
-                occupied.update(cls._occupied_paths(file, child_relative_path))
-        return occupied
-
     def copy_to(self, target_root: Path) -> None:
         self._copy_dir_tree(self._src_path, target_root / self.relative_path)
 
-    def occupied_paths(self) -> set[Path]:
-        return self._occupied_paths(self._src_path, self.relative_path)
-
     @classmethod
-    def _occupied_path_types(
+    def _paths(
         cls, src_path: Any, relative_path: Path
     ) -> dict[Path, str]:
         occupied = {relative_path: "directory"}
@@ -148,11 +125,11 @@ class ImportlibDirectoryAsset(AnsibleAsset):
             if file.is_file():
                 occupied[child_relative_path] = "file"
             else:
-                occupied.update(cls._occupied_path_types(file, child_relative_path))
+                occupied.update(cls._paths(file, child_relative_path))
         return occupied
 
-    def occupied_path_types(self) -> dict[Path, str]:
-        return self._occupied_path_types(self._src_path, self.relative_path)
+    def paths(self) -> dict[Path, str]:
+        return self._paths(self._src_path, self.relative_path)
 
 
 class ImportlibRepository(AnsibleRepository):

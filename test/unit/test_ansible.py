@@ -59,18 +59,15 @@ class AnsibleTestAccess:
 
 
 class StubAsset(AnsibleAsset):
-    def __init__(self, relative_path: Path, occupied_path_types: dict[Path, str]):
+    def __init__(self, relative_path: Path, paths: dict[Path, str]):
         super().__init__(relative_path)
-        self._occupied_path_types = occupied_path_types
+        self._paths = paths
 
     def copy_to(self, target_root: Path) -> None:
         pass
 
-    def occupied_paths(self) -> set[Path]:
-        return set(self._occupied_path_types)
-
-    def occupied_path_types(self) -> dict[Path, str]:
-        return self._occupied_path_types
+    def paths(self) -> set[Path]:
+        return self._paths
 
 
 class StubRepository(AnsibleRepository):
@@ -291,7 +288,10 @@ def test_context_manager_rejects_directory_file_conflicts():
         )
     )
 
+    testee = ansible_context_manager.ansible_context_manager
     with pytest.raises(FilenameConflict, match="Path collision detected: roles"):
-        ansible_context_manager._validate_assets(
-            file_repo.get_assets() + directory_repo.get_assets()
-        )
+        with testee(Mock(), (directory_repo, file_repo)):
+            pass
+        # ansible_context_manager._validate_assets(
+        #     file_repo.get_assets() + directory_repo.get_assets()
+        # )

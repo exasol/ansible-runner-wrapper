@@ -17,17 +17,19 @@ class FilenameConflict(RuntimeError):
     """
 
 
-@staticmethod
-def _validate_assets(assets: tuple[AnsibleAsset, ...]) -> None:
-    path_types: dict[Path, str] = {}
-    for asset in assets:
-        for occupied_path, path_type in asset.occupied_path_types().items():
-            existing_type = path_types.get(occupied_path)
-            if existing_type is not None:
-                if existing_type == path_type == "file":
-                    raise FilenameConflict(f"Duplicate file detected: {occupied_path}")
-                raise FilenameConflict(f"Path collision detected: {occupied_path}")
-            path_types[occupied_path] = path_type
+class AssetCopier:
+    def __init__(self, relative_target: Path):
+        self.target = relative_target
+        self._seen: dict[Path, str] = {}
+
+    def copy(self, asset: AnsibleAsset) -> None:
+        for path, ptype in asset.paths().items():
+            if (existing := self._seen.get(path)) is not None:
+                if existing == ptype == "file":
+                    raise FilenameConflict(f"Duplicate file detected: {path}")
+                raise FilenameConflict(f"Path collision detected: {path}")
+            self._seen[path] = ptype
+        asset.copy_to(self.target)
 
 
 @contextlib.contextmanager
@@ -49,10 +51,11 @@ def ansible_context_manager(
     """
     work_dir = work_dir or tempfile.TemporaryDirectory()
     assets = tuple(asset for repo in repositories for asset in repo.get_assets())
-    _validate_assets(assets)
     relative = Path(work_dir.name)
-    for asset in assets:
-        asset.copy_to(relative)
+    copier = AssetCopier(relative)
+    for repo in repositories:
+        for asset in repo.get_assets():
+            copier.copy(asset)
 
     yield AnsibleRunner(ansible_access, relative)
 
