@@ -87,7 +87,7 @@ def test_run_ansible_custom_playbook(test_config):
     Test which executes run_install_dependencies with default ansible variable, but a custom playbook
     """
     ansible_access = AnsibleTestAccess()
-    ansible_run_context = ansible.Playbook(file="my_playbook.yml", vars={})
+    ansible_run_context = ansible.Playbook(file="my_playbook.yml")
     run_install_dependencies(
         ansible_access,
         test_config,
