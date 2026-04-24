@@ -10,22 +10,21 @@ from typing import (
 # https://pypi.org/project/ansible-runner/
 # https://github.com/ansible/ansible-runner
 # https://docs.ansible.com/projects/runner/en/latest/python_interface/
-import ansible_runner
-from exasol.ansible.runner.ansible_run_context import AnsibleRunContext
-from exasol.ansible.runner.facts import AnsibleFacts
+from exasol.ansible.facts import Facts
+from exasol.ansible.playbook import Playbook
 from exasol.ds.sandbox.lib.logging import (
     LogType,
     get_status_logger,
 )
 
-AnsibleEvent = NewType("AnsibleEvent", dict[str, Any])
+Event = NewType("Event", dict[str, Any])
 
 
 class AnsibleException(RuntimeError):
     pass
 
 
-class AnsibleAccess:
+class Access:
     """
     Provides access to ansible runner.
     @raises: AnsibleException if ansible execution fails
@@ -34,29 +33,30 @@ class AnsibleAccess:
     @staticmethod
     def run(
         private_data_dir: str,
-        run_ctx: AnsibleRunContext,
+        playbook: Playbook,
         event_logger: Callable[[str], None],
-        event_handler: Callable[[AnsibleEvent], bool] = None,
-    ) -> AnsibleFacts:
+        event_handler: Callable[[Event], bool] | None = None,
+    ) -> Facts:
+        import ansible_runner
+
         quiet = not get_status_logger(LogType.ANSIBLE).isEnabledFor(logging.INFO)
-        r = ansible_runner.run(
+        runner = ansible_runner.run(
             private_data_dir=private_data_dir,
-            playbook=run_ctx.playbook,
+            playbook=playbook.file,
             quiet=quiet,
             event_handler=event_handler,
-            extravars=run_ctx.extra_vars,
+            extravars=playbook.vars,
         )
 
-        for e in r.events:
-            event_logger(json.dumps(e, indent=2))
+        for event in runner.events:
+            event_logger(json.dumps(event, indent=2))
 
-        if r.rc != 0:
-            raise AnsibleException(r.rc)
+        if runner.rc != 0:
+            raise AnsibleException(runner.rc)
 
-        if "docker_container" not in run_ctx.extra_vars:
-            return AnsibleFacts({})
+        if "docker_container" not in playbook.vars:
+            return Facts({})
 
-        host = run_ctx.extra_vars["docker_container"]
-        fact_cache = r.get_fact_cache(host)
-
-        return AnsibleFacts(fact_cache)
+        host = playbook.vars["docker_container"]
+        fact_cache = runner.get_fact_cache(host)
+        return Facts(fact_cache)
