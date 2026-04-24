@@ -50,7 +50,6 @@ def ansible_context_manager(
             temporary directory.
     """
     work_dir = work_dir or tempfile.TemporaryDirectory()
-    assets = tuple(asset for repo in repositories for asset in repo.get_assets())
     relative = Path(work_dir.name)
     copier = AssetCopier(relative)
     for repo in repositories:
