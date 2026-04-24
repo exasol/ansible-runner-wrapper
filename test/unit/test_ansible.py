@@ -1,7 +1,9 @@
+import importlib
 import pathlib
 import tempfile
 import test.ansible
-import test.unit.resources
+import test.unit.resources.conflict.lower_level
+import test.unit.resources.conflict.top_level
 from collections import namedtuple
 from collections.abc import Callable
 from pathlib import Path
@@ -253,21 +255,21 @@ def test_run_ansible_check_multiple_repositories(test_config):
     )
 
 
-def test_run_ansible_check_multiple_repositories_with_same_content_causes_exception(
-    test_config,
-):
+@pytest.mark.parametrize("module", ["lower_level", "top_level"])
+def test_conflict(test_config, module):
     """
-    Test that multiple repositories containing same files raises an runtime exception.
+    Verify exception if multiple repositories contain identical files or directories.
     """
-    conflict = AnsibleResourceRepository(test.unit.resources)
-    test_repositories = default_repositories + (conflict,)
+    package = importlib.import_module(f"test.unit.resources.conflict.{module}")
+    conflict = AnsibleResourceRepository(package)
+    repositories = default_repositories + (conflict,)
     with pytest.raises(RuntimeError):
         run_install_dependencies(
-            AnsibleTestAccess(),
+            Mock(),
             test_config,
             inventory_hosts=(),
             ansible_run_context=default_ansible_run_context,
-            ansible_repositories=test_repositories,
+            ansible_repositories=repositories,
         )
 
 
