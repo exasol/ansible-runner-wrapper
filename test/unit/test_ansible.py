@@ -18,7 +18,7 @@ from exasol.ansible.runner.ansible_access import (
     AnsibleAccess,
     AnsibleEvent,
 )
-from exasol.ansible.runner.ansible_context_manager import AnsibleContextManager
+from exasol.ansible.runner import ansible_context_manager
 from exasol.ansible.runner.ansible_repository import (
     AnsibleAsset,
     AnsibleRepository,
@@ -291,6 +291,6 @@ def test_context_manager_rejects_directory_file_conflicts():
     )
 
     with pytest.raises(RuntimeError, match="Path collision detected: roles"):
-        AnsibleContextManager._validate_assets(
+        ansible_context_manager._validate_assets(
             file_repo.get_assets() + directory_repo.get_assets()
         )
