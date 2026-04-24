@@ -2,8 +2,6 @@ import importlib
 import pathlib
 import tempfile
 import test.ansible
-import test.unit.resources.conflict.lower_level
-import test.unit.resources.conflict.top_level
 from collections import namedtuple
 from collections.abc import Callable
 from pathlib import Path
@@ -56,26 +54,6 @@ class AnsibleTestAccess:
         self.call_arguments = self.arguments(private_data_dir, run_ctx)
         if self.delegate is not None:
             self.delegate(private_data_dir, run_ctx)
-
-
-class StubAsset(AnsibleAsset):
-    def __init__(self, relative_path: Path, paths: dict[Path, str]):
-        super().__init__(relative_path)
-        self._paths = paths
-
-    def copy_to(self, target_root: Path) -> None:
-        pass
-
-    def paths(self) -> set[Path]:
-        return self._paths
-
-
-class StubRepository(AnsibleRepository):
-    def __init__(self, assets: tuple[AnsibleAsset, ...]):
-        self._assets = assets
-
-    def get_assets(self) -> tuple[AnsibleAsset, ...]:
-        return self._assets
 
 
 def _extra_vars(config):
@@ -253,7 +231,7 @@ def test_run_ansible_check_multiple_repositories(test_config):
     )
 
 
-@pytest.mark.parametrize("module", ["lower_level", "top_level"])
+@pytest.mark.parametrize("module", ["lower_level", "top_level", "directory_vs_file"])
 def test_conflict(test_config, module):
     """
     Verify exception if multiple repositories contain identical files or directories.
@@ -269,29 +247,3 @@ def test_conflict(test_config, module):
             ansible_run_context=default_ansible_run_context,
             ansible_repositories=repositories,
         )
-
-
-def test_context_manager_rejects_directory_file_conflicts():
-    file_repo = StubRepository(
-        (StubAsset(Path("roles"), {Path("roles"): "file"}),)
-    )
-    directory_repo = StubRepository(
-        (
-            StubAsset(
-                Path("roles"),
-                {
-                    Path("roles"): "directory",
-                    Path("roles/jupyter"): "directory",
-                    Path("roles/jupyter/tasks"): "directory",
-                },
-            ),
-        )
-    )
-
-    testee = ansible_context_manager.ansible_context_manager
-    with pytest.raises(FilenameConflict, match="Path collision detected: roles"):
-        with testee(Mock(), (directory_repo, file_repo)):
-            pass
-        # ansible_context_manager._validate_assets(
-        #     file_repo.get_assets() + directory_repo.get_assets()
-        # )
