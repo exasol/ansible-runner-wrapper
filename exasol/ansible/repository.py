@@ -1,8 +1,9 @@
+from abc import abstractmethod
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
 import exasol.ds.sandbox.runtime.ansible
-from collections.abc import Iterable
 
 from exasol.ds.sandbox.lib.logging import (
     LogType,
@@ -33,11 +34,22 @@ class Asset:
     def __init__(self, relative_path: Path):
         self.relative_path = relative_path
 
+    @abstractmethod
     def copy_to(self, target_root: Path) -> None:
-        raise NotImplementedError
+        """
+        Copy this asset into the given target root.
+        """
+        ...
 
+    @abstractmethod
     def paths(self) -> dict[Path, str]:
-        raise NotImplementedError
+        """
+        Return the contained paths for this asset.
+
+        The string values in the dict are either "directory" or "file" to
+        signal different types of assets.
+        """
+        ...
 
 
 class ImportlibFileAsset(Asset):

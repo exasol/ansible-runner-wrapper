@@ -6,6 +6,10 @@ from typing import (
     NewType,
 )
 
+# import the real final ansible runner from
+# https://pypi.org/project/ansible-runner/
+# https://github.com/ansible/ansible-runner
+# https://docs.ansible.com/projects/runner/en/latest/python_interface/
 from exasol.ansible.facts import AnsibleFacts
 from exasol.ansible.playbook import Playbook
 from exasol.ds.sandbox.lib.logging import (

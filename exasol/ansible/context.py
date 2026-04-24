@@ -13,7 +13,7 @@ from exasol.ansible.runner import Runner
 class FilenameConflict(RuntimeError):
     """
     Signals duplicate filenames or files vs. directories when using
-    multiple repositories.
+    multiple instances of Repository.
     """
 
 
@@ -33,6 +33,18 @@ class AssetCopier:
 
 
 class Context:
+    """
+    Create a temporary Ansible execution context from the given repositories.
+
+    Args:
+        ansible_access: Access configuration used by the created
+            ``Runner``.
+        repositories: Repositories whose assets are copied into the temporary
+            execution directory.
+        work_dir: Optional working directory to use instead of creating a new
+            temporary directory.
+    """
+
     def __init__(
         self,
         ansible_access: Access,

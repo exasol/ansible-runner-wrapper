@@ -65,7 +65,7 @@ class Runner:
 
     def event_handler(self, event: Event) -> bool:
         if "event_data" not in event:
-            return False
+            return False  # nothing to process
 
         event_data = event.get("event_data")
         duration = event_data.get("duration", 0)
