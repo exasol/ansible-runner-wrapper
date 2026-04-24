@@ -1,4 +1,3 @@
-import contextlib
 import importlib
 import pathlib
 import tempfile
@@ -13,44 +12,30 @@ from typing import (
 from unittest.mock import Mock
 
 import pytest
+import exasol.ansible as ansible
 
-from exasol.ansible.runner import ansible_context_manager
-from exasol.ansible.runner.ansible_access import (
-    AnsibleAccess,
-    AnsibleEvent,
-)
-from exasol.ansible.runner.ansible_context_manager import FilenameConflict
-from exasol.ansible.runner.ansible_repository import (
-    AnsibleAsset,
-    AnsibleRepository,
-    ImportlibRepository,
-    default_repositories,
-)
-from exasol.ansible.runner.ansible_run_context import (
-    AnsibleRunContext,
-    default_ansible_run_context,
-)
-from exasol.ansible.runner.inventory import InventoryHost
-from exasol.ansible.runner.run_install_dependencies import (
-    run_install_dependencies,
-)
+from exasol.ansible.access import Event
+from exasol.ansible.context import FilenameConflict
+from exasol.ansible.inventory import InventoryHost
+from exasol.ansible.repository import default_repositories
+from exasol.ansible.run_install_dependencies import run_install_dependencies
 from exasol.ds.sandbox.lib.config import ConfigObject
 
 
 class AnsibleTestAccess:
 
     def __init__(
-        self, delegate: Callable[[str, AnsibleRunContext], None] | None = None
+        self, delegate: Callable[[str, ansible.Playbook], None] | None = None
     ):
         self.call_arguments = None
-        self.arguments = namedtuple("Arguments", "private_data_dir run_ctx")
+        self.arguments = namedtuple("Arguments", "private_data_dir playbook")
         self.delegate = delegate
 
     def run(
         self,
         private_data_dir: str,
-        run_ctx: AnsibleRunContext,
-        event_handler: Callable[[AnsibleEvent], bool],
+        run_ctx: ansible.Playbook,
+        event_handler: Callable[[Event], bool],
         event_logger: Callable[[str], None],
     ):
         self.call_arguments = self.arguments(private_data_dir, run_ctx)
@@ -66,14 +51,14 @@ def _extra_vars(config):
 
 
 def _run_context(
-    other: AnsibleRunContext,
+    other: ansible.Playbook,
     extra_vars: dict[str, Any] | None = None,
-) -> AnsibleRunContext:
-    return AnsibleRunContext(playbook=other.playbook, extra_vars=extra_vars or {})
+) -> ansible.Playbook:
+    return ansible.Playbook(file=other.file, vars=extra_vars or {})
 
 
 def _run_context_from_config(
-    other: AnsibleRunContext,
+    other: ansible.Playbook,
     config: ConfigObject,
 ):
     extra_vars = {
@@ -84,8 +69,8 @@ def _run_context_from_config(
 
 
 def test_run_ansible_default_values(test_config: ConfigObject):
-    ansible_access = Mock(AnsibleAccess)
-    run_context = AnsibleRunContext(playbook="my_playbook.yml")
+    ansible_access = Mock(ansible.Access)
+    run_context = ansible.Playbook(file="my_playbook.yml")
     run_install_dependencies(
         ansible_access,
         test_config,
@@ -102,7 +87,7 @@ def test_run_ansible_custom_playbook(test_config):
     Test which executes run_install_dependencies with default ansible variable, but a custom playbook
     """
     ansible_access = AnsibleTestAccess()
-    ansible_run_context = AnsibleRunContext(playbook="my_playbook.yml", extra_vars={})
+    ansible_run_context = ansible.Playbook(file="my_playbook.yml", vars={})
     run_install_dependencies(
         ansible_access,
         test_config,
@@ -110,13 +95,13 @@ def test_run_ansible_custom_playbook(test_config):
         ansible_run_context=ansible_run_context,
     )
 
-    expected_ansible_run_context = AnsibleRunContext(
-        playbook="my_playbook.yml", extra_vars=_extra_vars(test_config)
+    expected_ansible_run_context = ansible.Playbook(
+        file="my_playbook.yml", vars=_extra_vars(test_config)
     )
     assert ansible_access.call_arguments.private_data_dir.startswith(
         tempfile.gettempdir()
     )
-    assert ansible_access.call_arguments.run_ctx == expected_ansible_run_context
+    assert ansible_access.call_arguments.playbook == expected_ansible_run_context
 
 
 def test_run_ansible_custom_variables(test_config):
@@ -124,8 +109,8 @@ def test_run_ansible_custom_variables(test_config):
     Test which executes run_install_dependencies with custam playbook and custom ansible variables
     """
     ansible_access = AnsibleTestAccess()
-    ansible_run_context = AnsibleRunContext(
-        playbook="my_playbook.yml", extra_vars={"my_var": True}
+    ansible_run_context = ansible.Playbook(
+        file="my_playbook.yml", vars={"my_var": True}
     )
     run_install_dependencies(
         ansible_access,
@@ -135,19 +120,19 @@ def test_run_ansible_custom_variables(test_config):
     )
     extra_vars = _extra_vars(test_config)
     extra_vars.update({"my_var": True})
-    expected_ansible_run_context = AnsibleRunContext(
-        playbook="my_playbook.yml", extra_vars=extra_vars
+    expected_ansible_run_context = ansible.Playbook(
+        file="my_playbook.yml", vars=extra_vars
     )
     assert ansible_access.call_arguments.private_data_dir.startswith(
         tempfile.gettempdir()
     )
-    assert ansible_access.call_arguments.run_ctx == expected_ansible_run_context
+    assert ansible_access.call_arguments.playbook == expected_ansible_run_context
 
 
 def test_run_ansible_check_inventory_empty_host(test_config):
     empty_inventory = "[test_targets]\n\n"
 
-    def check_inventory(work_dir: str, ansible_run_context: AnsibleRunContext):
+    def check_inventory(work_dir: str, ansible_run_context: ansible.Playbook):
         with open(
             f"{work_dir}/inventory",
         ) as f:
@@ -162,7 +147,7 @@ def test_run_ansible_check_inventory_custom_host(test_config):
         "[test_targets]\n\nmy_host ansible_ssh_private_key_file=my_key\n\n"
     )
 
-    def check_inventory(work_dir: str, ansible_run_context: AnsibleRunContext):
+    def check_inventory(work_dir: str, ansible_run_context: ansible.Playbook):
         with open(
             f"{work_dir}/inventory",
         ) as f:
@@ -184,7 +169,7 @@ def test_run_ansible_check_default_repository(test_config):
      2. One of the role files exists (Validate deep copy)
     """
 
-    def check_playbook(work_dir: str, ansible_run_context: AnsibleRunContext):
+    def check_playbook(work_dir: str, ansible_run_context: ansible.Playbook):
         p = pathlib.Path(work_dir) / "ansible_runner_wrapper_docker_playbook.yml"
         assert p.exists()
         p = pathlib.Path(work_dir) / "roles" / "jupyter" / "tasks" / "main.yml"
@@ -205,7 +190,7 @@ def test_default_repository_enumerates_assets():
 
 def test_repository_ignores_init_py_when_enumerating_assets():
     package = importlib.import_module("test.unit.resources.ignored_files")
-    assets = ImportlibRepository(package).get_assets()
+    assets = ansible.Repository(package).get_assets()
     relative_paths = [asset.relative_path for asset in assets]
     assert relative_paths == [Path("playbook.yml")]
 
@@ -216,36 +201,37 @@ def test_run_ansible_check_multiple_repositories(test_config):
     For simplicity, we check only if the playbook of the repositories exists on target.
     """
 
-    def check_playbooks(work_dir: str, ansible_run_context: AnsibleRunContext):
+    def check_playbooks(work_dir: str, ansible_run_context: ansible.Playbook):
         p = pathlib.Path(f"{work_dir}/general_setup_tasks.yml")
         assert p.exists()
         p = pathlib.Path(f"{work_dir}/ansible_sample_playbook.yml")
         assert p.exists()
 
-    test_repositories = default_repositories + (ImportlibRepository(test.ansible),)
+    test_repositories = default_repositories + (ansible.Repository(test.ansible),)
     run_install_dependencies(
         AnsibleTestAccess(check_playbooks),
         test_config,
         inventory_hosts=(),
-        ansible_run_context=default_ansible_run_context,
+        ansible_run_context=ansible.Playbook(
+            file="ansible_runner_wrapper_docker_playbook.yml"
+        ),
         ansible_repositories=test_repositories,
     )
 
 
 class Scenario:
     def __init__(self, playbook: str, package_names: list[str]):
-        self.playbook = AnsibleRunContext("playbook.yml")
+        self.playbook = ansible.Playbook(file=playbook)
         self.package_names = package_names
 
     @property
-    def _repositories(self) -> Iterable[AnsibleRepository]:
+    def _repositories(self) -> Iterable[ansible.Repository]:
         for name in self.package_names:
             package = importlib.import_module(name)
-            yield ImportlibRepository(package)
+            yield ansible.Repository(package)
 
-    def run(self, context: AnsibleRunContext = Mock(), path: Path | None = None):
-        testee = ansible_context_manager.ansible_context_manager
-        with testee(context, tuple(self._repositories), path) as runner:
+    def run(self, context: ansible.Access = Mock(), path: Path | None = None):
+        with ansible.Context(context, list(self._repositories), path) as runner:
             runner.run(self.playbook)
 
 

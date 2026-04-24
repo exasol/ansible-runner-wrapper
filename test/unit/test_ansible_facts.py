@@ -2,7 +2,7 @@ from typing import Any
 
 import pytest
 
-from exasol.ansible.runner.facts import AnsibleFacts
+from exasol.ansible.facts import AnsibleFacts
 
 SAMPLE_FACTS = {"a": {"b": {"c": "value"}}}
 
