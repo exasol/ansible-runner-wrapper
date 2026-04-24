@@ -22,7 +22,7 @@ from exasol.ansible.runner import ansible_context_manager
 from exasol.ansible.runner.ansible_repository import (
     AnsibleAsset,
     AnsibleRepository,
-    AnsibleResourceRepository,
+    ImportlibRepository,
     default_repositories,
 )
 from exasol.ansible.runner.ansible_run_context import (
@@ -226,7 +226,7 @@ def test_default_repository_enumerates_assets():
 
 
 def test_repository_ignores_init_py_when_enumerating_assets():
-    assets = AnsibleResourceRepository(test.ansible).get_assets()
+    assets = ImportlibRepository(test.ansible).get_assets()
     relative_paths = [asset.relative_path for asset in assets]
     assert relative_paths == [Path("ansible_sample_playbook.yml")]
 
@@ -244,7 +244,7 @@ def test_run_ansible_check_multiple_repositories(test_config):
         assert p.exists()
 
     test_repositories = default_repositories + (
-        AnsibleResourceRepository(test.ansible),
+        ImportlibRepository(test.ansible),
     )
     run_install_dependencies(
         AnsibleTestAccess(check_playbooks),
@@ -261,7 +261,7 @@ def test_conflict(test_config, module):
     Verify exception if multiple repositories contain identical files or directories.
     """
     package = importlib.import_module(f"test.unit.resources.conflict.{module}")
-    conflict = AnsibleResourceRepository(package)
+    conflict = ImportlibRepository(package)
     repositories = default_repositories + (conflict,)
     with pytest.raises(RuntimeError):
         run_install_dependencies(

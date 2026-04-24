@@ -39,12 +39,14 @@ class AnsibleAsset:
         """
         raise NotImplementedError()
 
+    @abstractmethod
     def occupied_paths(self) -> set[Path]:
         """
         Return all relative paths this asset requires in the target tree.
         """
         raise NotImplementedError()
 
+    @abstractmethod
     def occupied_path_types(self) -> dict[Path, str]:
         """
         Return the required path types for this asset.
@@ -57,6 +59,7 @@ class AnsibleRepository:
     Abstract source of top-level ansible assets.
     """
 
+    @abstractmethod
     def get_assets(self) -> tuple[AnsibleAsset, ...]:
         """
         Base class does not implement asset enumeration.
@@ -64,7 +67,7 @@ class AnsibleRepository:
         This method is intentionally left empty because:
         - Different repository types (e.g. filesystem-based, package-based)
           expose different asset sources.
-        - Subclasses like `AnsibleResourceRepository` provide the actual
+        - Subclasses like `ImportlibRepository` provide the actual
           implementation using their specific source (e.g. importlib resources).
 
         This class acts as an interface / abstraction layer.
@@ -152,7 +155,7 @@ class ImportlibDirectoryAsset(AnsibleAsset):
         return self._occupied_path_types(self._src_path, self.relative_path)
 
 
-class AnsibleResourceRepository(AnsibleRepository):
+class ImportlibRepository(AnsibleRepository):
     """
     Represents a repository containing ansible files (roles, playbooks, tasks, etc.).
     The repository is expected to be located within a Python module.
@@ -178,4 +181,4 @@ class AnsibleResourceRepository(AnsibleRepository):
         return tuple(assets)
 
 
-default_repositories = (AnsibleResourceRepository(exasol.ds.sandbox.runtime.ansible),)
+default_repositories = (ImportlibRepository(exasol.ds.sandbox.runtime.ansible),)
