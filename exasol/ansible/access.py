@@ -10,7 +10,7 @@ from typing import (
 # https://pypi.org/project/ansible-runner/
 # https://github.com/ansible/ansible-runner
 # https://docs.ansible.com/projects/runner/en/latest/python_interface/
-from exasol.ansible.facts import AnsibleFacts
+from exasol.ansible.facts import Facts
 from exasol.ansible.playbook import Playbook
 from exasol.ds.sandbox.lib.logging import (
     LogType,
@@ -36,7 +36,7 @@ class Access:
         playbook: Playbook,
         event_logger: Callable[[str], None],
         event_handler: Callable[[Event], bool] | None = None,
-    ) -> AnsibleFacts:
+    ) -> Facts:
         import ansible_runner
 
         quiet = not get_status_logger(LogType.ANSIBLE).isEnabledFor(logging.INFO)
@@ -55,8 +55,8 @@ class Access:
             raise AnsibleException(runner.rc)
 
         if "docker_container" not in playbook.vars:
-            return AnsibleFacts({})
+            return Facts({})
 
         host = playbook.vars["docker_container"]
         fact_cache = runner.get_fact_cache(host)
-        return AnsibleFacts(fact_cache)
+        return Facts(fact_cache)

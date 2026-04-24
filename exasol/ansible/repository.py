@@ -102,6 +102,27 @@ class ImportlibDirectoryAsset(Asset):
 
 class Repository:
     """
+    Abstract source of top-level ansible assets.
+    """
+
+    @abstractmethod
+    def get_assets(self) -> Iterable[Asset]:
+        """
+        Base class does not implement asset enumeration.
+
+        This method is intentionally left empty because:
+        - Different repository types (e.g. filesystem-based, package-based)
+          expose different asset sources.
+        - Subclasses like `ImportlibRepository` provide the actual
+          implementation using their specific source (e.g. importlib resources).
+
+        This class acts as an interface / abstraction layer.
+        """
+        ...
+
+
+class ImportlibRepository(Repository):
+    """
     Represents a repository containing ansible files (roles, playbooks, tasks, etc.).
     The repository is expected to be located within a Python module.
     Supports copy of the ansible files to a target folder.
@@ -124,4 +145,4 @@ class Repository:
                 yield ImportlibDirectoryAsset(child, Path(child.name))
 
 
-default_repositories = (Repository(exasol.ds.sandbox.runtime.ansible),)
+default_repositories = (ImportlibRepository(exasol.ds.sandbox.runtime.ansible),)

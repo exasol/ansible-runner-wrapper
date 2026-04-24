@@ -190,7 +190,7 @@ def test_default_repository_enumerates_assets():
 
 def test_repository_ignores_init_py_when_enumerating_assets():
     package = importlib.import_module("test.unit.resources.ignored_files")
-    assets = ansible.Repository(package).get_assets()
+    assets = ansible.ImportlibRepository(package).get_assets()
     relative_paths = [asset.relative_path for asset in assets]
     assert relative_paths == [Path("playbook.yml")]
 
@@ -207,7 +207,9 @@ def test_run_ansible_check_multiple_repositories(test_config):
         p = pathlib.Path(f"{work_dir}/ansible_sample_playbook.yml")
         assert p.exists()
 
-    test_repositories = default_repositories + (ansible.Repository(test.ansible),)
+    test_repositories = default_repositories + (
+        ansible.ImportlibRepository(test.ansible),
+    )
     run_install_dependencies(
         AnsibleTestAccess(check_playbooks),
         test_config,
@@ -228,7 +230,7 @@ class Scenario:
     def _repositories(self) -> Iterable[ansible.Repository]:
         for name in self.package_names:
             package = importlib.import_module(name)
-            yield ansible.Repository(package)
+            yield ansible.ImportlibRepository(package)
 
     def run(self, context: ansible.Access = Mock(), path: Path | None = None):
         with ansible.Context(context, list(self._repositories), path) as runner:

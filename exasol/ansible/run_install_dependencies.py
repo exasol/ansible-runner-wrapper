@@ -1,5 +1,4 @@
 import exasol.ansible as ansible
-from exasol.ansible.facts import AnsibleFacts
 from exasol.ansible.inventory import InventoryHost
 from exasol.ansible.playbook import default_playbook
 from exasol.ansible.repository import default_repositories
@@ -12,7 +11,7 @@ def run_install_dependencies(
     inventory_hosts: tuple[InventoryHost, ...] = (),
     ansible_run_context: ansible.Playbook = default_playbook,
     ansible_repositories: tuple[ansible.Repository, ...] = default_repositories,
-) -> AnsibleFacts:
+) -> ansible.Facts:
     """
     Run Ansible in a temporary working directory populated from the configured
     repositories and inventory hosts.

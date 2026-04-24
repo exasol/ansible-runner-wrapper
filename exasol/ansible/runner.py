@@ -5,7 +5,7 @@ from exasol.ansible.access import (
     Access,
     Event,
 )
-from exasol.ansible.facts import AnsibleFacts
+from exasol.ansible.facts import Facts
 from exasol.ansible.inventory import InventoryHost
 from exasol.ansible.playbook import Playbook
 from exasol.ds.sandbox.lib.logging import (
@@ -79,7 +79,7 @@ class Runner:
         self,
         playbook: Playbook,
         hosts: tuple[InventoryHost, ...] = (),
-    ) -> AnsibleFacts:
+    ) -> Facts:
         inventory_content = render_inventory(hosts)
         with open(self._work_dir / "inventory", "w") as file:
             file.write(inventory_content)
