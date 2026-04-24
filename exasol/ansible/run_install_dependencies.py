@@ -1,4 +1,4 @@
-import exasol.ansible as ansible
+from exasol import ansible
 from exasol.ansible.inventory import InventoryHost
 from exasol.ansible.playbook import default_playbook
 from exasol.ansible.repository import default_repositories

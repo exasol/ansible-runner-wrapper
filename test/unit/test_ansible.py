@@ -3,17 +3,19 @@ import pathlib
 import tempfile
 import test.ansible
 from collections import namedtuple
-from collections.abc import Callable
+from collections.abc import (
+    Callable,
+    Iterable,
+)
 from pathlib import Path
 from typing import (
     Any,
-    Iterable,
 )
 from unittest.mock import Mock
 
 import pytest
-import exasol.ansible as ansible
 
+import exasol.ansible as ansible
 from exasol.ansible.access import Event
 from exasol.ansible.context import FilenameConflict
 from exasol.ansible.inventory import InventoryHost
@@ -24,9 +26,7 @@ from exasol.ds.sandbox.lib.config import ConfigObject
 
 class AnsibleTestAccess:
 
-    def __init__(
-        self, delegate: Callable[[str, ansible.Playbook], None] | None = None
-    ):
+    def __init__(self, delegate: Callable[[str, ansible.Playbook], None] | None = None):
         self.call_arguments = None
         self.arguments = namedtuple("Arguments", "private_data_dir playbook")
         self.delegate = delegate
