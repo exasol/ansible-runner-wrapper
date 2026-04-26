@@ -3,13 +3,6 @@ from test.integration.docker_utils import exec_run
 import exasol.ansible as ansible
 
 
-def test_x1(docker_container):
-    host = docker_container.name
-    print(f'running docker_container {host}')
-    output = exec_run(docker_container, "ls -d /tmp")
-    print(f'output: {output}')
-
-
 def test_integration(docker_container_with_python3):
     container = docker_container_with_python3
     host_name = container.name
