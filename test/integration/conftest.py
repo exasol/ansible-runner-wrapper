@@ -22,7 +22,7 @@ def docker_container() -> str:
     name = "ARW_ITEST"
     container = None
     try:
-        LOG.debug("Starting container %s of image %s", name, image)
+        LOG.info("Starting container %s of image %s", name, image)
         container = client.containers.create(
             image=image,
             name=name,
@@ -33,19 +33,25 @@ def docker_container() -> str:
         yield container
     finally:
         if container:
-            LOG.debug("Stopping container %s of image %s", name, image)
+            LOG.info("Stopping container")
             container.stop()
-            LOG.debug("Removing container %s of image %s", name, image)
+            LOG.info("Removing container")
             container.remove()
-            LOG.debug("Done")
+            LOG.info("Done")
 
 
 @pytest.fixture(scope="session")
 def docker_container_with_python3(docker_container):
-    exec_run(docker_container, "apt-get update")
+    """
+    Ansible automation requires Python to be installed on the host to
+    manage.
+    """
+
+    exec_run(docker_container, "apt-get update", log=True)
     exec_run(
         docker_container,
         "apt-get install --no-install-recommends "
         "--assume-yes python3 python3-pexpect",
+        log=True,
     )
     return docker_container
