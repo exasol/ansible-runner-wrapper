@@ -4,20 +4,24 @@ import pytest
 
 import exasol.ansible as ansible
 
-SAMPLE_FACTS = {"a": {"b": {"c": "value"}}}
+PAYLOAD = {"a": {"b": {"c": "value"}}}
+
+
+def create_facts(payload: dict[str, Any]) -> ansible.Facts:
+    return ansible.Facts({"dss_facts": payload}, prefixes=["dss_facts"])
 
 
 @pytest.fixture
 def sample_facts() -> ansible.Facts:
-    return ansible.Facts({"dss_facts": SAMPLE_FACTS})
+    return create_facts(PAYLOAD)
 
 
 @pytest.mark.parametrize(
     "keys, expected",
     [
-        ([], SAMPLE_FACTS),
+        ([], PAYLOAD),
         (["missing"], None),
-        (["a"], SAMPLE_FACTS["a"]),
+        (["a"], PAYLOAD["a"]),
         (["a", "b", "c"], "value"),
     ],
 )
@@ -30,11 +34,11 @@ def test_ansible_facts(
 
 
 def test_as_dict() -> None:
-    inner = {
+    payload = {
         "a": {"a1": "AA"},
         "b": {"b1": "BB"},
     }
-    facts = ansible.Facts({"dss_facts": inner})
+    facts = create_facts(payload)
     spec = {
         "MISSING": ("c",),
         "VA": ("a", "a1"),

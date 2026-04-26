@@ -1,18 +1,17 @@
 import logging
 from pathlib import Path
+from typing import Any
 
 from exasol.ansible.access import (
     Access,
     Event,
 )
-from exasol.ansible.facts import Facts
 from exasol.ansible.inventory import InventoryHost
 from exasol.ansible.playbook import Playbook
 from exasol.ds.sandbox.lib.logging import (
     LogType,
     get_status_logger,
 )
-
 
 LOG = get_status_logger(LogType.ANSIBLE)
 INVENTORY_GROUP_NAME = "test_targets"
@@ -79,7 +78,8 @@ class Runner:
         self,
         playbook: Playbook,
         hosts: tuple[InventoryHost, ...] = (),
-    ) -> Facts:
+        retrieve_facts_from: str = "",
+    ) -> dict[str, Any]:
         inventory_content = render_inventory(hosts)
         with open(self._work_dir / "inventory", "w") as file:
             file.write(inventory_content)
@@ -91,4 +91,5 @@ class Runner:
             playbook,
             event_logger=LOG.debug,
             event_handler=event_handler,
+            retrieve_facts_from=retrieve_facts_from,
         )
