@@ -55,17 +55,17 @@ def test_files_copied(simple_scenario, tmp_path):
         assert (tmp_path / f).exists()
 
 
-@pytest.mark.parametrize("hosts, expected", [
-    pytest.param(None, "[test_targets]\n\n", id="no_host"),
-    pytest.param(
-        (ansible.InventoryHost("HHH", "KKK"),),
-        (
-            "[test_targets]\n\n"
-            "HHH ansible_ssh_private_key_file=KKK\n\n"
+@pytest.mark.parametrize(
+    "hosts, expected",
+    [
+        pytest.param(None, "[test_targets]\n\n", id="no_host"),
+        pytest.param(
+            (ansible.InventoryHost("HHH", "KKK"),),
+            "[test_targets]\n\nHHH ansible_ssh_private_key_file=KKK\n\n",
+            id="custom_host",
         ),
-        id="custom_host"
-    ),
-])
+    ],
+)
 def test_inventory(simple_scenario, tmp_path, hosts, expected):
     simple_scenario.run(hosts=hosts, path=tmp_path)
     actual = (tmp_path / "inventory").read_text()

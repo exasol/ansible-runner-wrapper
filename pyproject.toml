@@ -1,6 +1,6 @@
 [project]
 name = "exasol-ansible-runner-wrapper"
-version = "0.1.0"
+version = "0.2.0"
 description = "Python wrapper for running Ansible"
 authors = [
     {name = "Mykhailo Skliar", email = "mykhailo.skliar@exasol.com"},
@@ -90,6 +90,10 @@ module = [
     "test.*",
 ]
 ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "ansible_runner.*"
+ignore_missing_imports = true
 
 [tool.sonar]
 projectKey = "com.exasol:ansible-runner-wrapper"
