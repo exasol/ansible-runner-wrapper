@@ -38,7 +38,7 @@ class Access:
         event_logger: Callable[[str], None],
         event_handler: Callable[[Event], bool] | None = None,
     ) -> Facts:
-        import ansible_runner
+        import ansible_runner  # pylint: disable=import-outside-toplevel
 
         quiet = not get_status_logger(LogType.ANSIBLE).isEnabledFor(logging.INFO)
         runner = ansible_runner.run(
@@ -62,6 +62,6 @@ class Access:
 
         host = playbook.vars["docker_container"]
         fact_cache = runner.get_fact_cache(host)
-        # Also Facts needs to be instantiated with prefixes=["dss_facts"]
-        # which again, is AI Lab-specific.
-        return Facts(fact_cache)
+        # Facts needs to be instantiated with prefixes=["dss_facts"], which is AI Lab-specific.
+        # AI Lab stores exported facts below this ansible fact cache key.
+        return Facts(fact_cache, prefixes=["dss_facts"])
