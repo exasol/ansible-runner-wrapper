@@ -38,7 +38,7 @@ class Access:
         event_logger: Callable[[str], None],
         event_handler: Callable[[Event], bool] | None = None,
     ) -> Facts:
-        import ansible_runner  # type: ignore[import-untyped]  # pylint: disable=import-outside-toplevel
+        import ansible_runner  # pylint: disable=import-outside-toplevel
 
         quiet = not get_status_logger(LogType.ANSIBLE).isEnabledFor(logging.INFO)
         runner = ansible_runner.run(
