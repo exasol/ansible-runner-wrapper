@@ -24,6 +24,7 @@ class AnsibleException(RuntimeError):
     pass
 
 
+# For this class it is recommended to add an integration test.
 class Access:
     """
     Provides access to ansible runner.
@@ -54,9 +55,13 @@ class Access:
         if runner.rc != 0:
             raise AnsibleException(runner.rc)
 
+        # Variable "docker_container" is specific for ai-lab and should be
+        # extracted.  Maybe the whole class needs to be extended in AI Lab?
         if "docker_container" not in playbook.vars:
             return Facts({})
 
         host = playbook.vars["docker_container"]
         fact_cache = runner.get_fact_cache(host)
+        # Also Facts needs to be instantiated with prefixes=["dss_facts"]
+        # which again, is AI Lab-specific.
         return Facts(fact_cache)

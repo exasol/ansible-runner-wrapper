@@ -9,7 +9,7 @@ SAMPLE_FACTS = {"a": {"b": {"c": "value"}}}
 
 @pytest.fixture
 def sample_facts() -> ansible.Facts:
-    return ansible.Facts({"dss_facts": SAMPLE_FACTS})
+    return ansible.Facts({"dss_facts": SAMPLE_FACTS}, prefixes=["dss_facts"])
 
 
 @pytest.mark.parametrize(
@@ -34,7 +34,7 @@ def test_as_dict() -> None:
         "a": {"a1": "AA"},
         "b": {"b1": "BB"},
     }
-    facts = ansible.Facts({"dss_facts": inner})
+    facts = ansible.Facts({"dss_facts": inner}, prefixes=["dss_facts"])
     spec = {
         "MISSING": ("c",),
         "VA": ("a", "a1"),

@@ -3,7 +3,6 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
-import exasol.ds.sandbox.runtime.ansible
 from exasol.ds.sandbox.lib.logging import (
     LogType,
     get_status_logger,
@@ -144,6 +143,3 @@ class ImportlibRepository(Repository):
                 yield ImportlibFileAsset(child, Path(child.name))
             else:
                 yield ImportlibDirectoryAsset(child, Path(child.name))
-
-
-default_repositories = (ImportlibRepository(exasol.ds.sandbox.runtime.ansible),)
