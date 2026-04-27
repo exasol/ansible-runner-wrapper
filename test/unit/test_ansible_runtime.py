@@ -77,7 +77,9 @@ def test_access_run_returns_fact_cache_for_docker_container(monkeypatch):
 
     fake_status_logger = Mock()
     fake_status_logger.isEnabledFor.return_value = True
-    monkeypatch.setattr("exasol.ansible.access.get_status_logger", lambda _: fake_status_logger)
+    monkeypatch.setattr(
+        "exasol.ansible.access.get_status_logger", lambda _: fake_status_logger
+    )
 
     facts = Access.run(
         private_data_dir="/tmp/work",
