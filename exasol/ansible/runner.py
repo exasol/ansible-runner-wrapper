@@ -6,34 +6,14 @@ from exasol.ansible.access import (
     Event,
 )
 from exasol.ansible.facts import Facts
-from exasol.ansible.inventory import InventoryHost
 from exasol.ansible.playbook import Playbook
 
 logger = logging.getLogger(__name__)
-INVENTORY_GROUP_NAME = "test_targets"
-
-
-def _inventory_line(inventory_host: InventoryHost) -> str:
-    if inventory_host.ssh_private_key:
-        return (
-            f"{inventory_host.host_name} "
-            f"ansible_ssh_private_key_file={inventory_host.ssh_private_key}"
-        )
-    return inventory_host.host_name
-
-
-def render_inventory(hosts: tuple[InventoryHost, ...]) -> str:
-    header = f"[{INVENTORY_GROUP_NAME}]\n\n"
-    if not hosts:
-        return header
-    body = "\n".join(_inventory_line(host) for host in hosts)
-    return f"{header}{body}\n\n"
 
 
 class Runner:
     """
-    Encapsulates invocation ansible access. It creates the inventory file,
-    writing the host info, during run.
+    Encapsulates invocation ansible access.
     """
 
     def __init__(self, ansible_access: Access, work_dir: Path):
@@ -54,15 +34,7 @@ class Runner:
 
         return True
 
-    def run(
-        self,
-        playbook: Playbook,
-        hosts: tuple[InventoryHost, ...] = (),
-    ) -> Facts:
-        inventory_content = render_inventory(hosts)
-        with open(self._work_dir / "inventory", "w", encoding="utf-8") as file:
-            file.write(inventory_content)
-
+    def run(self, playbook: Playbook) -> Facts:
         event_handler = (
             self.event_handler if logger.isEnabledFor(logging.INFO) else None
         )

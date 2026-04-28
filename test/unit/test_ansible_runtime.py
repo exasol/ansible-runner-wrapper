@@ -128,19 +128,15 @@ def test_runner_event_handler_ignores_short_duration(tmp_path, caplog):
     assert caplog.messages == []
 
 
-def test_runner_inventory_renders_host_without_private_key(tmp_path):
+def test_runner_run_delegates_without_creating_inventory(tmp_path):
     ansible_access = Mock()
     ansible_access.run.return_value = ansible.Facts({})
     runner = Runner(ansible_access, tmp_path)
 
-    runner.run(
-        ansible.Playbook(file="play.yml"),
-        hosts=(ansible.InventoryHost("plain-host"),),
-    )
+    runner.run(ansible.Playbook(file="play.yml"))
 
-    assert (tmp_path / "inventory").read_text(encoding="utf-8") == (
-        "[test_targets]\n\nplain-host\n\n"
-    )
+    assert not (tmp_path / "inventory").exists()
+    ansible_access.run.assert_called_once()
 
 
 def test_importlib_directory_asset_ignores_nested_pycache_and_copies_subdirs(tmp_path):
@@ -173,7 +169,6 @@ def test_package_exports_and_version_constants():
     assert ansible.Context is not None
     assert ansible.Facts is not None
     assert ansible.ImportlibRepository is not None
-    assert ansible.InventoryHost is not None
     assert ansible.Playbook is not None
     assert ansible.Repository is not None
     assert ansible.Runner is not None
