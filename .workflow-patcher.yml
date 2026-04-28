@@ -1,5 +1,0 @@
-workflows:
-  - name: checks
-    remove_jobs:
-      - lint-typing
-      - check-format

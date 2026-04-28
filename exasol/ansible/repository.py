@@ -88,7 +88,9 @@ class ImportlibDirectoryAsset(Asset):
             target = target_root / path
             if path_type == "file":
                 target.parent.mkdir(parents=True, exist_ok=True)
-                content = (self._src_path / path.relative_to(self.relative_path)).read_bytes()
+                content = (
+                    self._src_path / path.relative_to(self.relative_path)
+                ).read_bytes()
                 with open(target, "wb") as file:
                     file.write(content)
             else:

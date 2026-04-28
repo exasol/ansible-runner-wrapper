@@ -13,7 +13,6 @@ from exasol.ds.sandbox.lib.logging import (
     get_status_logger,
 )
 
-
 LOG = get_status_logger(LogType.ANSIBLE)
 INVENTORY_GROUP_NAME = "test_targets"
 
@@ -68,6 +67,8 @@ class Runner:
             return False  # nothing to process
 
         event_data = event.get("event_data")
+        if not isinstance(event_data, dict):
+            return False
         duration = event_data.get("duration", 0)
 
         if duration > 1.5:
@@ -81,7 +82,7 @@ class Runner:
         hosts: tuple[InventoryHost, ...] = (),
     ) -> Facts:
         inventory_content = render_inventory(hosts)
-        with open(self._work_dir / "inventory", "w") as file:
+        with open(self._work_dir / "inventory", "w", encoding="utf-8") as file:
             file.write(inventory_content)
 
         event_handler = self.event_handler if LOG.isEnabledFor(logging.INFO) else None
