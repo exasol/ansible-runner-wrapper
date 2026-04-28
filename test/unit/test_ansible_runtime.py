@@ -1,4 +1,5 @@
 import importlib
+import logging
 import sys
 from pathlib import Path
 from types import SimpleNamespace
@@ -49,10 +50,8 @@ def test_access_run_returns_empty_facts_without_docker_container(monkeypatch):
     captured = _install_fake_ansible_runner(monkeypatch, result)
     logger = Mock()
 
-    fake_status_logger = Mock()
-    fake_status_logger.isEnabledFor.return_value = False
     monkeypatch.setattr(
-        "exasol.ansible.access.get_status_logger", lambda _: fake_status_logger
+        "exasol.ansible.access.logger.isEnabledFor", Mock(return_value=False)
     )
 
     facts = Access.run(
@@ -75,10 +74,8 @@ def test_access_run_returns_fact_cache_for_docker_container(monkeypatch):
     )
     captured = _install_fake_ansible_runner(monkeypatch, result)
 
-    fake_status_logger = Mock()
-    fake_status_logger.isEnabledFor.return_value = True
     monkeypatch.setattr(
-        "exasol.ansible.access.get_status_logger", lambda _: fake_status_logger
+        "exasol.ansible.access.logger.isEnabledFor", Mock(return_value=True)
     )
 
     facts = Access.run(
@@ -96,8 +93,7 @@ def test_access_run_raises_for_non_zero_return_code(monkeypatch):
     result = FakeRunnerResult(rc=5)
     _install_fake_ansible_runner(monkeypatch, result)
     monkeypatch.setattr(
-        "exasol.ansible.access.get_status_logger",
-        lambda _: Mock(isEnabledFor=Mock(return_value=False)),
+        "exasol.ansible.access.logger.isEnabledFor", Mock(return_value=False)
     )
 
     with pytest.raises(AnsibleException) as ex:
@@ -116,30 +112,20 @@ def test_runner_event_handler_handles_missing_and_invalid_event_data(tmp_path):
     assert runner.event_handler(Event({"event_data": "invalid"})) is False
 
 
-def test_runner_event_handler_logs_long_duration(tmp_path):
+def test_runner_event_handler_logs_long_duration(tmp_path, caplog):
+    caplog.set_level(logging.DEBUG, logger="exasol.ansible.runner")
     runner = Runner(Mock(), tmp_path)
-    runner._duration_logger.debug = Mock()
 
     assert runner.event_handler(Event({"event_data": {"duration": 2.6}}))
-    runner._duration_logger.debug.assert_called_once_with("duration: 3 seconds")
+    assert "duration: 3 seconds" in caplog.messages
 
 
-def test_runner_event_handler_ignores_short_duration(tmp_path):
+def test_runner_event_handler_ignores_short_duration(tmp_path, caplog):
+    caplog.set_level(logging.DEBUG, logger="exasol.ansible.runner")
     runner = Runner(Mock(), tmp_path)
-    runner._duration_logger.debug = Mock()
 
     assert runner.event_handler(Event({"event_data": {"duration": 1.0}}))
-    runner._duration_logger.debug.assert_not_called()
-
-
-def test_runner_duration_logger_reuses_existing_duration_handler():
-    logger_1 = Runner.duration_logger()
-    handler_count = len(logger_1.handlers)
-
-    logger_2 = Runner.duration_logger()
-
-    assert logger_1 is logger_2
-    assert len(logger_2.handlers) == handler_count
+    assert caplog.messages == []
 
 
 def test_runner_inventory_renders_host_without_private_key(tmp_path):
