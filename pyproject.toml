@@ -25,7 +25,9 @@ dependencies = ["importlib-metadata (>=9.0.0,<10.0.0)", "ansible-runner (>=2.4.3
 [dependency-groups]
 dev = [
     "exasol-toolbox>=6.3.0,<7",
+    "pip>=26.1",
     "pytest (>=9.0.3,<10.0.0)",
+    "requests>=2.33.0",
 ]
 
 [tool.poetry]

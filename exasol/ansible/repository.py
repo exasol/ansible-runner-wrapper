@@ -1,12 +1,8 @@
+import logging
 from abc import abstractmethod
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
-
-from exasol.ds.sandbox.lib.logging import (
-    LogType,
-    get_status_logger,
-)
 
 try:
     import importlib.resources as ir
@@ -14,12 +10,12 @@ except ImportError:  # pragma: no cover
     import importlib_resources as ir  # type: ignore[no-redef]
 
 
-LOG = get_status_logger(LogType.ANSIBLE)
+logger = logging.getLogger(__name__)
 
 
 def _should_ignore(path: Any) -> bool:
     if path.name in {"__init__.py", "__pycache__", ".DS_Store"}:
-        LOG.debug(f"Ignoring {path} for repository.")
+        logger.debug("Ignoring %s for repository.", path)
         return True
     return False
 
