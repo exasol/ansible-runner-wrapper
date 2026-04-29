@@ -173,8 +173,8 @@ def test_package_exports_and_version_constants():
     assert ansible.Repository is not None
     assert ansible.Runner is not None
     assert ansible.Facts is Facts
-    assert version.VERSION == "0.1.0"
+    assert version.VERSION == f"{version.MAJOR}.{version.MINOR}.{version.PATCH}"
     assert version.__version__ == version.VERSION
-    assert version.MAJOR == 0
-    assert version.MINOR == 1
-    assert version.PATCH == 0
+    assert isinstance(version.MAJOR, int)
+    assert isinstance(version.MINOR, int)
+    assert isinstance(version.PATCH, int)
