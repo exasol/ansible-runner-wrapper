@@ -47,6 +47,7 @@ def test_run_ansible_calls_ansible_access(simple_scenario):
     args = mock.run.call_args.args
     assert args[0].startswith(tempfile.gettempdir())
     assert args[1] == simple_scenario.playbook
+    assert not Path(args[0]).exists()
 
 
 def test_files_copied(simple_scenario, tmp_path):
