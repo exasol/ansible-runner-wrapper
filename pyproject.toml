@@ -102,9 +102,13 @@ unfixable = []
 
 [[tool.mypy.overrides]]
 module = [
-    # "xtest.*",
+    "test.*",
 ]
 ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = "ansible_runner.*"
+ignore_missing_imports = true
 
 [tool.sonar]
 projectKey = "com.exasol:ansible-runner-wrapper"

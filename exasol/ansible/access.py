@@ -6,20 +6,17 @@ from typing import (
     NewType,
 )
 
-from exasol.ansible.playbook import Playbook
-
 # import the real final ansible runner from
 # https://pypi.org/project/ansible-runner/
 # https://github.com/ansible/ansible-runner
 # https://docs.ansible.com/projects/runner/en/latest/python_interface/
-import ansible_runner  # type: ignore[import-untyped]
+import ansible_runner   # type: ignore[import-untyped]
 
-from exasol.ds.sandbox.lib.logging import (
-    LogType,
-    get_status_logger,
-)
+from exasol.ansible.facts import Facts
+from exasol.ansible.playbook import Playbook
 
 Event = NewType("Event", dict[str, Any])
+logger = logging.getLogger(__name__)
 
 
 class AnsibleException(RuntimeError):
@@ -50,7 +47,7 @@ class Access:
                 running ansible.
         """
 
-        quiet = not get_status_logger(LogType.ANSIBLE).isEnabledFor(logging.INFO)
+        quiet = not logger.isEnabledFor(logging.INFO)
         runner = ansible_runner.run(
             private_data_dir=private_data_dir,
             playbook=playbook.file,
