@@ -1,7 +1,9 @@
 import logging
+from collections.abc import Iterable
 from test.integration.docker_utils import exec_run
 
 import docker
+from docker.models.containers import Container as DockerContainer
 import pytest
 
 LOG = logging.getLogger(__name__)
@@ -9,7 +11,7 @@ logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 @pytest.fixture(scope="session")
-def docker_container() -> str:
+def docker_container() -> Iterable[DockerContainer]:
     """
     Run a docker container.
 
@@ -41,7 +43,7 @@ def docker_container() -> str:
 
 
 @pytest.fixture(scope="session")
-def docker_container_with_python3(docker_container):
+def docker_container_with_python3(docker_container) -> Iterable[DockerContainer]:
     """
     Ansible automation requires Python to be installed on the host to
     manage.

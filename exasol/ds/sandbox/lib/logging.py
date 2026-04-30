@@ -6,7 +6,7 @@ from enum import Enum
 try:
     from rich.logging import RichHandler
 except ImportError:  # pragma: no cover
-    RichHandler = logging.StreamHandler
+    RichHandler = logging.StreamHandler  # type: ignore
 
 SUPPORTED_LOG_LEVELS = {
     "normal": logging.WARNING,

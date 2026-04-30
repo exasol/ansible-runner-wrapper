@@ -12,7 +12,7 @@ from exasol.ansible.playbook import Playbook
 # https://pypi.org/project/ansible-runner/
 # https://github.com/ansible/ansible-runner
 # https://docs.ansible.com/projects/runner/en/latest/python_interface/
-import ansible_runner
+import ansible_runner  # type: ignore[import-untyped]
 
 from exasol.ds.sandbox.lib.logging import (
     LogType,

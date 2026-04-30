@@ -1,13 +1,7 @@
-try:
-    from importlib.metadata import (
-        PackageNotFoundError,
-        version,
-    )
-except ImportError:  # pragma: no cover
-    from importlib_metadata import (
-        PackageNotFoundError,
-        version,
-    )
+from importlib.metadata import (
+    PackageNotFoundError,
+    version,
+)
 
 try:
     # name of the project as specified in file pyproject.toml

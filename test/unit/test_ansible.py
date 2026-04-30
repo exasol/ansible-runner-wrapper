@@ -26,7 +26,7 @@ class Scenario:
     def run(
         self,
         ansible_access: ansible.Access = Mock(),
-        hosts: tuple[ansible.InventoryHost, ...] | None = None,
+        hosts: tuple[ansible.InventoryHost, ...] = (),
         path: Path | None = None,
     ):
         with ansible.Context(ansible_access, self.repositories, path) as runner:

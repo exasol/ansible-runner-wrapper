@@ -3894,6 +3894,53 @@ rich = ">=12.3.0"
 shellingham = ">=1.3.0"
 
 [[package]]
+name = "types-docker"
+version = "7.1.0.20260409"
+description = "Typing stubs for docker"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "types_docker-7.1.0.20260409-py3-none-any.whl", hash = "sha256:83754caf2487e48ff18ff3b99bbd9e9c50565dce56374f61208388d6c95fbbeb"},
+    {file = "types_docker-7.1.0.20260409.tar.gz", hash = "sha256:3dfed52b1534841a4d422d73f1909cbbc28425c02cfd9ec7948e7ea774d08991"},
+]
+
+[package.dependencies]
+types-paramiko = "*"
+types-requests = "*"
+urllib3 = ">=2"
+
+[[package]]
+name = "types-paramiko"
+version = "4.0.0.20260408"
+description = "Typing stubs for paramiko"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "types_paramiko-4.0.0.20260408-py3-none-any.whl", hash = "sha256:350bf53edb4eb88181be68854d598e1cc3a8764fe905d49913025b86e831adbc"},
+    {file = "types_paramiko-4.0.0.20260408.tar.gz", hash = "sha256:978191a2e11064fa4c7f9ada0fccf49159a17beb98b780310dd2c2d2b4106063"},
+]
+
+[package.dependencies]
+cryptography = ">=37.0.0"
+
+[[package]]
+name = "types-requests"
+version = "2.33.0.20260408"
+description = "Typing stubs for requests"
+optional = false
+python-versions = ">=3.10"
+groups = ["main"]
+files = [
+    {file = "types_requests-2.33.0.20260408-py3-none-any.whl", hash = "sha256:81f31d5ea4acb39f03be7bc8bed569ba6d5a9c5d97e89f45ac43d819b68ca50f"},
+    {file = "types_requests-2.33.0.20260408.tar.gz", hash = "sha256:95b9a86376807a216b2fb412b47617b202091c3ea7c078f47cc358d5528ccb7b"},
+]
+
+[package.dependencies]
+urllib3 = ">=2"
+
+[[package]]
 name = "typing-extensions"
 version = "4.15.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
@@ -3927,7 +3974,7 @@ version = "2.6.3"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
 python-versions = ">=3.9"
-groups = ["dev"]
+groups = ["main", "dev"]
 files = [
     {file = "urllib3-2.6.3-py3-none-any.whl", hash = "sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4"},
     {file = "urllib3-2.6.3.tar.gz", hash = "sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed"},
@@ -4006,4 +4053,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.10,<4.0"
-content-hash = "befded9e42b2e24fccec1a1dfb9d2e4ec1931cffe52d8d2676dbcefe9ab649b3"
+content-hash = "d38d7e9cdfdfc856a735c7e1d397cbb3b99e39dc4e0b211b805a5646708c2f70"
