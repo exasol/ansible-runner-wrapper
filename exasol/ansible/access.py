@@ -12,12 +12,9 @@ from typing import (
 # https://docs.ansible.com/projects/runner/en/latest/python_interface/
 from exasol.ansible.facts import Facts
 from exasol.ansible.playbook import Playbook
-from exasol.ds.sandbox.lib.logging import (
-    LogType,
-    get_status_logger,
-)
 
 Event = NewType("Event", dict[str, Any])
+logger = logging.getLogger(__name__)
 
 
 class AnsibleException(RuntimeError):
@@ -38,9 +35,9 @@ class Access:
         event_logger: Callable[[str], None],
         event_handler: Callable[[Event], bool] | None = None,
     ) -> Facts:
-        import ansible_runner
+        import ansible_runner  # pylint: disable=import-outside-toplevel
 
-        quiet = not get_status_logger(LogType.ANSIBLE).isEnabledFor(logging.INFO)
+        quiet = not logger.isEnabledFor(logging.INFO)
         runner = ansible_runner.run(
             private_data_dir=private_data_dir,
             playbook=playbook.file,
@@ -62,6 +59,6 @@ class Access:
 
         host = playbook.vars["docker_container"]
         fact_cache = runner.get_fact_cache(host)
-        # Also Facts needs to be instantiated with prefixes=["dss_facts"]
-        # which again, is AI Lab-specific.
-        return Facts(fact_cache)
+        # Facts needs to be instantiated with prefixes=["dss_facts"], which is AI Lab-specific.
+        # AI Lab stores exported facts below this ansible fact cache key.
+        return Facts(fact_cache, prefixes=["dss_facts"])

@@ -26,11 +26,10 @@ class Scenario:
     def run(
         self,
         ansible_access: ansible.Access = Mock(),
-        hosts: tuple[ansible.InventoryHost, ...] | None = None,
         path: Path | None = None,
     ):
         with ansible.Context(ansible_access, self.repositories, path) as runner:
-            runner.run(self.playbook, hosts=hosts)
+            runner.run(self.playbook)
 
 
 @pytest.fixture
@@ -53,23 +52,6 @@ def test_files_copied(simple_scenario, tmp_path):
     simple_scenario.run(path=tmp_path)
     for f in ["playbook.yml", "roles/tasks/main.yml"]:
         assert (tmp_path / f).exists()
-
-
-@pytest.mark.parametrize("hosts, expected", [
-    pytest.param(None, "[test_targets]\n\n", id="no_host"),
-    pytest.param(
-        (ansible.InventoryHost("HHH", "KKK"),),
-        (
-            "[test_targets]\n\n"
-            "HHH ansible_ssh_private_key_file=KKK\n\n"
-        ),
-        id="custom_host"
-    ),
-])
-def test_inventory(simple_scenario, tmp_path, hosts, expected):
-    simple_scenario.run(hosts=hosts, path=tmp_path)
-    actual = (tmp_path / "inventory").read_text()
-    assert actual == expected
 
 
 def test_multi_playbook_assets():
