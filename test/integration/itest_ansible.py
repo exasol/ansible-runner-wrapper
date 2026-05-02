@@ -2,6 +2,8 @@ from test.integration.docker_utils import exec_run
 
 import exasol.ansible as ansible
 
+import pytest
+
 
 def test_lifecycle(docker_container_with_python3):
     """
@@ -25,11 +27,10 @@ def test_lifecycle(docker_container_with_python3):
     }
     playbook = ansible.Playbook("docker_playbook.yml", vars=extra_vars)
     repositories = (ansible.ImportlibRepository("test.resources.itest"),)
-    host = ansible.InventoryHost(host_name=host_name)
 
     # Run ansible
     with ansible.Context(ansible.Access(), repositories) as runner:
-        raw_facts = runner.run(playbook, hosts=(host,), retrieve_facts_from=host_name)
+        raw_facts = runner.run(playbook, retrieve_facts_from=host_name)
 
     # Verify populated Ansible facts
     facts = ansible.Facts(raw_facts, prefixes=["my_facts"])

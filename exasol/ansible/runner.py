@@ -27,16 +27,8 @@ class Runner:
         if not type(duration) in (int, float):
             return False  # nothing to process
 
-        # if "event_data" not in event:
-        #     return False  # nothing to process
-        #
-        # event_data = event.get("event_data")
-        # if not isinstance(event_data, dict):
-        #     return False
-        # duration = event_data.get("duration", 0)
-
         if duration > 1.5:
-            logger.debug("duration: %s seconds", round(duration))
+            logger.info("duration: %s seconds", round(duration))
 
         return True
 
