@@ -3,8 +3,8 @@ from collections.abc import Iterable
 from test.integration.docker_utils import exec_run
 
 import docker
-from docker.models.containers import Container as DockerContainer
 import pytest
+from docker.models.containers import Container as DockerContainer
 
 LOG = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")

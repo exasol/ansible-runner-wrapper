@@ -10,9 +10,8 @@ from typing import (
 # https://pypi.org/project/ansible-runner/
 # https://github.com/ansible/ansible-runner
 # https://docs.ansible.com/projects/runner/en/latest/python_interface/
-import ansible_runner   # type: ignore[import-untyped]
+import ansible_runner  # type: ignore[import-untyped]
 
-from exasol.ansible.facts import Facts
 from exasol.ansible.playbook import Playbook
 
 Event = NewType("Event", dict[str, Any])

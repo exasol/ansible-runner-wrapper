@@ -74,6 +74,6 @@ def test_filename_conflicts(module):
         "test.unit.resources.simple",
         f"test.unit.resources.conflict.{module}",
     ]
-    repos = tuple((importlib_repository(p) for p in modules))
+    repos = tuple(importlib_repository(p) for p in modules)
     with pytest.raises(FilenameConflict):
         Scenario(playbook, repos).run()

@@ -1,6 +1,5 @@
 import importlib
 import logging
-import sys
 from pathlib import Path
 from unittest.mock import Mock
 
@@ -40,9 +39,7 @@ def _install_fake_ansible_runner(monkeypatch: MonkeyPatch, result: FakeRunnerRes
         captured.update(kwargs)
         return result
 
-    monkeypatch.setattr(
-        "exasol.ansible.access.ansible_runner.run", fake_run
-    )
+    monkeypatch.setattr("exasol.ansible.access.ansible_runner.run", fake_run)
     return captured
 
 

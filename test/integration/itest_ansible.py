@@ -2,8 +2,6 @@ from test.integration.docker_utils import exec_run
 
 import exasol.ansible as ansible
 
-import pytest
-
 
 def test_lifecycle(docker_container_with_python3):
     """
