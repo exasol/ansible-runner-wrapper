@@ -46,6 +46,7 @@ def test_run_ansible_calls_ansible_access(simple_scenario):
     args = mock.run.call_args.args
     assert args[0].startswith(tempfile.gettempdir())
     assert args[1] == simple_scenario.playbook
+    assert not Path(args[0]).exists()
 
 
 def test_files_copied(simple_scenario, tmp_path):
@@ -73,6 +74,6 @@ def test_filename_conflicts(module):
         "test.unit.resources.simple",
         f"test.unit.resources.conflict.{module}",
     ]
-    repos = tuple((importlib_repository(p) for p in modules))
+    repos = tuple(importlib_repository(p) for p in modules)
     with pytest.raises(FilenameConflict):
         Scenario(playbook, repos).run()

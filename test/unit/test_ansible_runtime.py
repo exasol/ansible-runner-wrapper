@@ -1,8 +1,6 @@
 import importlib
 import logging
-import sys
 from pathlib import Path
-from types import SimpleNamespace
 from unittest.mock import Mock
 
 import pytest
@@ -41,7 +39,7 @@ def _install_fake_ansible_runner(monkeypatch: MonkeyPatch, result: FakeRunnerRes
         captured.update(kwargs)
         return result
 
-    monkeypatch.setitem(sys.modules, "ansible_runner", SimpleNamespace(run=fake_run))
+    monkeypatch.setattr("exasol.ansible.access.ansible_runner.run", fake_run)
     return captured
 
 
@@ -60,7 +58,7 @@ def test_access_run_returns_empty_facts_without_docker_container(monkeypatch):
         event_logger=logger,
     )
 
-    assert facts.as_dict({}) == {}
+    assert facts == {}
     assert captured["quiet"] is True
     assert captured["playbook"] == "play.yml"
     assert captured["extravars"] == {"x": 1}
@@ -83,10 +81,11 @@ def test_access_run_returns_fact_cache_for_docker_container(monkeypatch):
         playbook=ansible.Playbook(file="play.yml", vars={"docker_container": "host-1"}),
         event_logger=Mock(),
         event_handler=Mock(),
+        retrieve_facts_from="host-1",
     )
 
     assert captured["quiet"] is False
-    assert facts.get("name") == "value"
+    assert facts["dss_facts"]["name"] == "value"
 
 
 def test_access_run_raises_for_non_zero_return_code(monkeypatch):

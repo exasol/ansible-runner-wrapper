@@ -10,7 +10,8 @@ from typing import (
 # https://pypi.org/project/ansible-runner/
 # https://github.com/ansible/ansible-runner
 # https://docs.ansible.com/projects/runner/en/latest/python_interface/
-from exasol.ansible.facts import Facts
+import ansible_runner  # type: ignore[import-untyped]
+
 from exasol.ansible.playbook import Playbook
 
 Event = NewType("Event", dict[str, Any])
@@ -34,8 +35,16 @@ class Access:
         playbook: Playbook,
         event_logger: Callable[[str], None],
         event_handler: Callable[[Event], bool] | None = None,
-    ) -> Facts:
-        import ansible_runner  # pylint: disable=import-outside-toplevel
+        retrieve_facts_from: str = "",
+    ) -> dict[str, Any]:
+        """
+        Run the actual ansible_runner.
+
+        Args:
+            retrieve_facts_from:
+                Optional, host to retrieve the fact cache from after
+                running ansible.
+        """
 
         quiet = not logger.isEnabledFor(logging.INFO)
         runner = ansible_runner.run(
@@ -52,13 +61,7 @@ class Access:
         if runner.rc != 0:
             raise AnsibleException(runner.rc)
 
-        # Variable "docker_container" is specific for ai-lab and should be
-        # extracted.  Maybe the whole class needs to be extended in AI Lab?
-        if "docker_container" not in playbook.vars:
-            return Facts({})
-
-        host = playbook.vars["docker_container"]
-        fact_cache = runner.get_fact_cache(host)
-        # Facts needs to be instantiated with prefixes=["dss_facts"], which is AI Lab-specific.
-        # AI Lab stores exported facts below this ansible fact cache key.
-        return Facts(fact_cache, prefixes=["dss_facts"])
+        if host := retrieve_facts_from:
+            return runner.get_fact_cache(host)
+        else:
+            return {}
