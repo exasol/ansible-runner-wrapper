@@ -3,8 +3,8 @@ import exasol.ansible.inventory as inventory
 
 def test_render() -> None:
     hosts = (
-        inventory.InventoryHost("H1"),
-        inventory.InventoryHost("H2", "key"),
+        inventory.Host("H1"),
+        inventory.Host("H2", "key"),
     )
     actual = inventory.render(hosts)
     assert actual == (
