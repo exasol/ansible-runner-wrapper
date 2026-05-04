@@ -20,7 +20,7 @@ def docker_container() -> Iterable[DockerContainer]:
     """
 
     client = docker.from_env()
-    image = "ubuntu:latest"
+    image = "ubuntu:22.04"
     name = "ARW_ITEST"
     container = None
     try:
