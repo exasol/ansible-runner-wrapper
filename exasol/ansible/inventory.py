@@ -12,7 +12,7 @@ class Host:
     def rendered(self) -> str:
         """Renders the current Host for inventory file."""
         if key := self.ssh_private_key:
-            return f"{self.host_name} " f"ansible_ssh_private_key_file={key}"
+            return f"{self.host_name} ansible_ssh_private_key_file={key}"
         return self.host_name
 
 
