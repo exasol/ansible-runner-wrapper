@@ -48,7 +48,7 @@ Additional Details
 Directory Structure
 -------------------
 
-For running Ansible you will usually provide importlib resources as Ansible
+For running Ansible, you will usually provide importlib resources as Ansible
 input directory. That means you will have a directory within your source code
 containing the playbook, roles, and tasks for Ansible.
 
