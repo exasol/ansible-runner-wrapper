@@ -12,7 +12,7 @@
 .. autoclass:: Playbook
    :members:
    :undoc-members:
-.. autoclass:: InventoryHost
+.. autoclass:: Host
    :members:
    :undoc-members:
 .. autoclass:: Context
