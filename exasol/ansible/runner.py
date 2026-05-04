@@ -23,7 +23,7 @@ class Runner:
 
     def event_handler(self, event: Event) -> bool:
         duration = Facts(event).get("event_data", "duration")
-        if not type(duration) in (int, float):
+        if type(duration) not in (int, float):
             return False  # nothing to process
 
         if duration > 1.5:
