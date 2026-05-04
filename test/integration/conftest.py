@@ -1,6 +1,7 @@
+import io
 import logging
 from collections.abc import Iterable
-from test.integration.docker_utils import exec_run
+from inspect import cleandoc
 
 import docker
 import pytest
@@ -11,7 +12,25 @@ logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 @pytest.fixture(scope="session")
-def docker_container() -> Iterable[DockerContainer]:
+def arw_itest_docker_image() -> str:
+    image_name = "arw/itest:latest"
+    LOG.info("Creating Docker image %s", image_name)
+    install_args = "--no-install-recommends --assume-yes python3 python3-pexpect"
+    docker_file_content = cleandoc(
+        f"""
+        FROM ubuntu:24.04
+        ENV DEBIAN_FRONTEND noninteractive
+        RUN apt-get update && apt-get install {install_args}
+        """
+    )
+    stream = io.BytesIO(docker_file_content.encode("utf-8"))
+    client = docker.from_env()
+    client.images.build(fileobj=stream, tag=image_name, rm=True)
+    return image_name
+
+
+@pytest.fixture(scope="session")
+def arw_itest_docker_container(arw_itest_docker_image) -> Iterable[DockerContainer]:
     """
     Run a docker container.
 
@@ -20,11 +39,11 @@ def docker_container() -> Iterable[DockerContainer]:
     """
 
     client = docker.from_env()
-    image = "ubuntu:22.04"
     name = "ARW_ITEST"
+    image = arw_itest_docker_image
     container = None
     try:
-        LOG.info("Starting container %s of image %s", name, image)
+        LOG.info("Starting Docker container %s of image %s", name, image)
         container = client.containers.create(
             image=image,
             name=name,
@@ -40,20 +59,3 @@ def docker_container() -> Iterable[DockerContainer]:
             LOG.info("Removing container")
             container.remove()
             LOG.info("Done")
-
-
-@pytest.fixture(scope="session")
-def docker_container_with_python3(docker_container) -> Iterable[DockerContainer]:
-    """
-    Ansible automation requires Python to be installed on the host to
-    manage.
-    """
-
-    exec_run(docker_container, "apt-get update", log=True)
-    exec_run(
-        docker_container,
-        "apt-get install --no-install-recommends "
-        "--assume-yes python3 python3-pexpect",
-        log=True,
-    )
-    return docker_container

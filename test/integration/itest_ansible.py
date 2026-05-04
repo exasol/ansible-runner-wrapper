@@ -3,7 +3,7 @@ from test.integration.docker_utils import exec_run
 import exasol.ansible as ansible
 
 
-def test_lifecycle(docker_container_with_python3):
+def test_lifecycle(arw_itest_docker_container):
     """
     Use a specific playbook and some extra vars to manage a Docker
     container as Ansible host.
@@ -16,7 +16,7 @@ def test_lifecycle(docker_container_with_python3):
     """
 
     # Prepare all components and settings for running Ansible
-    container = docker_container_with_python3
+    container = arw_itest_docker_container
     host_name = container.name
     sample_directory = "/tmp/sample-directory"
     extra_vars = {
