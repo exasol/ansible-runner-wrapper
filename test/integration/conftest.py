@@ -16,13 +16,11 @@ def arw_itest_docker_image() -> str:
     image_name = "arw/itest:latest"
     LOG.info("Creating Docker image %s", image_name)
     install_args = "--no-install-recommends --assume-yes python3 python3-pexpect"
-    docker_file_content = cleandoc(
-        f"""
+    docker_file_content = cleandoc(f"""
         FROM ubuntu:24.04
         ENV DEBIAN_FRONTEND noninteractive
         RUN apt-get update && apt-get install {install_args}
-        """
-    )
+        """)
     stream = io.BytesIO(docker_file_content.encode("utf-8"))
     client = docker.from_env()
     client.images.build(fileobj=stream, tag=image_name, rm=True)
