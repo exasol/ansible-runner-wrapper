@@ -1,6 +1,6 @@
 [project]
 name = "exasol-ansible-runner-wrapper"
-version = "0.1.0"
+version = "1.0.0"
 description = "Python wrapper for running Ansible"
 authors = [
     {name = "Mykhailo Skliar", email = "mykhailo.skliar@exasol.com"},
@@ -31,8 +31,10 @@ dependencies = [
 [dependency-groups]
 dev = [
     "exasol-toolbox>=6.3.0,<7",
+    "pip>=26.1",
     "pytest (>=9.0.3,<10.0.0)",
     "docker (>=7.1.0, <8); sys_platform!=\"win32\"",
+    "requests>=2.33.0",
 ]
 
 [tool.poetry]

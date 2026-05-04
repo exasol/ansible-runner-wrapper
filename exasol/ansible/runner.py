@@ -14,8 +14,7 @@ logger = logging.getLogger(__name__)
 
 class Runner:
     """
-    Encapsulates invocation ansible access. It creates the inventory file,
-    writing the host info, during run.
+    Encapsulates invocation ansible access.
     """
 
     def __init__(self, ansible_access: Access, work_dir: Path):
