@@ -11,11 +11,11 @@ the following features:
 * Creates Ansible inventory.
 * Enables convenient access to Ansible's fact cache.
 
-Basic classes
+Basic Classes
 -------------
 
 Python package ``exasol.ansible`` contains the basic classes as shown in the
-following figure
+following figure.
 
 .. image:: images/classes.svg
     :scale: 130 %
@@ -39,8 +39,8 @@ Additional Details
   * Enables passing extra variables to Ansible.
   * Removes the directory after Ansible has terminated.
 
-* Calling ``runner.run()`` with argument ``retrieve_facts_from`` set to the
-  name of one of the hosts managed by Ansible will retrieve the Ansible fact
+* Calling ``runner.run()`` with argument ``retrieve_facts_from`` - set to the
+  name of one of the hosts managed by Ansible - will retrieve the Ansible fact
   cache from this host.
 
 * You can use class ``Facts`` to conveniently access the facts hierarchically.
