@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 
+import exasol.ansible.inventory as inventory
 from exasol.ansible.access import (
     Access,
     Event,
@@ -13,7 +14,8 @@ logger = logging.getLogger(__name__)
 
 class Runner:
     """
-    Encapsulates invocation ansible access.
+    Encapsulates invocation ansible access. Method run() creates the
+    inventory file with the host info.
     """
 
     def __init__(self, ansible_access: Access, work_dir: Path):
@@ -34,7 +36,14 @@ class Runner:
 
         return True
 
-    def run(self, playbook: Playbook) -> Facts:
+    def run(
+        self,
+        playbook: Playbook,
+        hosts: tuple[inventory.Host, ...] = (),
+    ) -> Facts:
+        content = inventory.render(hosts)
+        (self._work_dir / "inventory").write_text(content)
+
         event_handler = (
             self.event_handler if logger.isEnabledFor(logging.INFO) else None
         )

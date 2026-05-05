@@ -135,7 +135,7 @@ def test_runner_run_delegates_without_creating_inventory(tmp_path):
 
     runner.run(ansible.Playbook(file="play.yml"))
 
-    assert not (tmp_path / "inventory").exists()
+    assert (tmp_path / "inventory").exists()
     ansible_access.run.assert_called_once()
 
 
