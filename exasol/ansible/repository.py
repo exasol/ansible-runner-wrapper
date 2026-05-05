@@ -107,6 +107,7 @@ class Repository:
         Base class does not implement asset enumeration.
 
         This method is intentionally left empty because:
+
         - Different repository types (e.g. filesystem-based, package-based)
           expose different asset sources.
         - Subclasses like `ImportlibRepository` provide the actual
