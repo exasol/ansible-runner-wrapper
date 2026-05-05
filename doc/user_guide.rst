@@ -75,14 +75,15 @@ Example Code
 
 .. code-block:: python
 
+  from pathlib import Path
   import exasol.ansible as ansible
 
   repositories = (ansible.ImportlibRepository("package.name.resources.ansible"),)
   playbook = ansible.Playbook("playbook.yml", vars={"key": "value"})
-  host_name = "myhost"
+  host = ansible.Host("myhost", Path("/tmp/private_key.pem"))
 
   with ansible.Context(ansible.Access(), repositories) as runner:
-      raw_facts = runner.run(playbook, retrieve_facts_from=host_name)
+      raw_facts = runner.run(playbook, hosts=(host,) retrieve_facts_from=host.name)
 
   facts = ansible.Facts(raw_facts, prefixes=["pfx"])
   value = facts.get("parent", "child")

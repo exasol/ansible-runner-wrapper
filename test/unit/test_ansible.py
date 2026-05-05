@@ -6,6 +6,7 @@ from unittest.mock import Mock
 import pytest
 
 import exasol.ansible as ansible
+from exasol.ansible import inventory
 from exasol.ansible.context import FilenameConflict
 
 
@@ -26,10 +27,11 @@ class Scenario:
     def run(
         self,
         ansible_access: ansible.Access = Mock(),
+        hosts: tuple[inventory.Host, ...] = (),
         path: Path | None = None,
     ):
         with ansible.Context(ansible_access, self.repositories, path) as runner:
-            runner.run(self.playbook)
+            runner.run(self.playbook, hosts=hosts)
 
 
 @pytest.fixture
@@ -53,6 +55,23 @@ def test_files_copied(simple_scenario, tmp_path):
     simple_scenario.run(path=tmp_path)
     for f in ["playbook.yml", "roles/tasks/main.yml"]:
         assert (tmp_path / f).exists()
+
+
+@pytest.mark.parametrize(
+    "hosts, expected",
+    [
+        pytest.param(None, "[arw_inventory]\n\n", id="no_host"),
+        pytest.param(
+            (inventory.Host("HHH", Path("/tmp/K.pem")),),
+            ("[arw_inventory]\n\n" "HHH ansible_ssh_private_key_file=/tmp/K.pem\n\n"),
+            id="custom_host",
+        ),
+    ],
+)
+def test_inventory(simple_scenario, tmp_path, hosts, expected):
+    simple_scenario.run(hosts=hosts, path=tmp_path)
+    actual = (tmp_path / "inventory").read_text()
+    assert actual == expected
 
 
 def test_multi_playbook_assets():

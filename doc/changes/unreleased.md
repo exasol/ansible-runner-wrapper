@@ -2,6 +2,10 @@
 
 ## Summary
 
+## Bugfixes
+
+* #26: Re-added `inventory.Host`
+
 ## Documentation
 
 * #24: Added minimal user guide
