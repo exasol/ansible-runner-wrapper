@@ -52,8 +52,7 @@ For running Ansible, you will usually provide importlib resources as Ansible
 input directory. That means you will have a directory within your source code
 containing the playbook, roles, and tasks for Ansible.
 
-Here is an example, see `Ansible input directory
-<https://docs.ansible.com/projects/runner/en/latest/intro/#inputdir>`_:
+Here is an example:
 
 .. code-block::
 
@@ -67,6 +66,9 @@ Here is an example, see `Ansible input directory
                     +- main.yml
 
 .. _ansible_runner: https://pypi.org/project/ansible-runner/
+
+The directories and filenames follow the requirements as defined in `Ansible input directory
+<https://docs.ansible.com/projects/runner/en/latest/intro/#inputdir>`_.
 
 Example Code
 ------------
