@@ -27,7 +27,7 @@ class Scenario:
     def run(
         self,
         ansible_access: ansible.Access = Mock(),
-        hosts: tuple[inventory.Host, ...] | None = (),
+        hosts: tuple[inventory.Host, ...] = (),
         path: Path | None = None,
     ):
         with ansible.Context(ansible_access, self.repositories, path) as runner:
@@ -60,10 +60,10 @@ def test_files_copied(simple_scenario, tmp_path):
 @pytest.mark.parametrize("hosts, expected", [
     pytest.param(None, "[arw_inventory]\n\n", id="no_host"),
     pytest.param(
-        (inventory.Host("HHH", "KKK"),),
+        (inventory.Host("HHH", Path("/tmp/K.pem")),),
         (
             "[arw_inventory]\n\n"
-            "HHH ansible_ssh_private_key_file=KKK\n\n"
+            "HHH ansible_ssh_private_key_file=/tmp/K.pem\n\n"
         ),
         id="custom_host"
     ),
