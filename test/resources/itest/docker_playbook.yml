@@ -1,0 +1,22 @@
+- name: Prepare environment
+  hosts: localhost
+  tasks:
+    - name: Add Docker Container to Ansible Inventory
+      add_host:
+        name: "{{docker_container}}"
+        groups: docker_container_group
+        ansible_connection: docker
+
+- name: Sample Tasks
+  hosts: docker_container_group
+  gather_facts: true
+  tasks:
+    - name: Set facts
+      ansible.builtin.set_fact:
+        my_facts:
+          sample_fact: "{{sample_dir}}"
+        cacheable: yes
+    - name: Create directory
+      ansible.builtin.file:
+        path: "{{sample_dir}}"
+        state: directory

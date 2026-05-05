@@ -20,13 +20,20 @@ classifiers = [
     "Programming Language :: Python :: 3.14"
 
 ]
-dependencies = ["importlib-metadata (>=9.0.0,<10.0.0)", "ansible-runner (>=2.4.3,<3.0.0)"]
+
+dependencies = [
+    "importlib-metadata (>=9.0.0,<10.0.0)",
+    "ansible-runner (>=2.4.3,<3.0.0)",
+    "ansible (>=10.7.0, <11)",
+    "types-docker (>=7.1.0.20260409,<8.0.0.0)",
+]
 
 [dependency-groups]
 dev = [
     "exasol-toolbox>=6.3.0,<7",
     "pip>=26.1",
     "pytest (>=9.0.3,<10.0.0)",
+    "docker (>=7.1.0, <8); sys_platform!=\"win32\"",
     "requests>=2.33.0",
 ]
 
@@ -53,6 +60,14 @@ build-backend = "poetry.core.masonry.api"
 relative_files = true
 source = [
     "exasol",
+]
+
+[tool.pytest.ini_options]
+
+python_files = [
+    "utest_*.py",
+    "itest_*.py",
+    "test_*.py",
 ]
 
 [tool.coverage.report]
