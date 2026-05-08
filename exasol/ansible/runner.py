@@ -30,10 +30,10 @@ class AnsibleException(RuntimeError):
 class Runner:
     def __init__(
         self,
-        repos: tuple[Repository, ...],
+        repositories: tuple[Repository, ...],
         work_dir: Path | None = None,
     ):
-        self._repos = repos
+        self._repos = repositories
         self._path = work_dir
 
     def event_handler(self, event: Event) -> bool:

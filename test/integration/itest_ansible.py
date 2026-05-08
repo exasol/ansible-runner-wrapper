@@ -27,7 +27,7 @@ def test_lifecycle(arw_itest_docker_container):
     repositories = (ansible.ImportlibRepository("test.resources.itest"),)
 
     # Run ansible
-    runner = ansible.Runner(repositories)
+    runner = ansible.Runner(repositories=repositories)
     raw_facts = runner.run(playbook, retrieve_facts_from=host_name)
 
     # Verify populated Ansible facts
