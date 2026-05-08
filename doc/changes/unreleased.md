@@ -13,3 +13,4 @@
 ## Refactorings
 
 * #22: Added integration tests
+* #31: Refactored `ansible.Context` and `ansible.Runner`

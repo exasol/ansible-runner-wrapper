@@ -19,16 +19,16 @@ def test_lifecycle(arw_itest_docker_container):
     container = arw_itest_docker_container
     host_name = container.name
     sample_directory = "/tmp/sample-directory"
-    extra_vars = {
+    extravars = {
         "docker_container": host_name,
         "sample_dir": sample_directory,
     }
-    playbook = ansible.Playbook("docker_playbook.yml", vars=extra_vars)
+    playbook = ansible.Playbook("docker_playbook.yml", vars=extravars)
     repositories = (ansible.ImportlibRepository("test.resources.itest"),)
 
     # Run ansible
-    with ansible.Context(ansible.Access(), repositories) as runner:
-        raw_facts = runner.run(playbook, retrieve_facts_from=host_name)
+    runner = ansible.Runner(repositories)
+    raw_facts = runner.run(playbook, retrieve_facts_from=host_name)
 
     # Verify populated Ansible facts
     facts = ansible.Facts(raw_facts, prefixes=["my_facts"])

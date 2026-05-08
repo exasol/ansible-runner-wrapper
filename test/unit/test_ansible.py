@@ -1,18 +1,14 @@
-import importlib
-import tempfile
 from pathlib import Path
-from unittest.mock import Mock
+from unittest.mock import (
+    Mock,
+)
 
 import pytest
 
 import exasol.ansible as ansible
 from exasol.ansible import inventory
 from exasol.ansible.context import FilenameConflict
-
-
-def importlib_repository(package_name: str) -> ansible.Repository:
-    package = importlib.import_module(package_name)
-    return ansible.ImportlibRepository(package)
+from exasol.ansible.runner import ansible_runner
 
 
 class Scenario:
@@ -20,41 +16,55 @@ class Scenario:
         self,
         playbook: ansible.Playbook,
         repositories: tuple[ansible.Repository, ...],
+        path: Path,
+        runner: Mock | None = None,
     ):
         self.playbook = playbook
         self.repositories = repositories
+        self.path = path
+        self.runner = runner or Mock()
 
     def run(
         self,
-        ansible_access: ansible.Access = Mock(),
         hosts: tuple[inventory.Host, ...] = (),
-        path: Path | None = None,
     ):
-        with ansible.Context(ansible_access, self.repositories, path) as runner:
-            runner.run(self.playbook, hosts=hosts)
+        runner = ansible.Runner(self.repositories, self.path)
+        runner.run(self.playbook, hosts=hosts)
 
 
 @pytest.fixture
-def simple_scenario() -> Scenario:
-    extra_vars = {"a": "aaa", "b": "bbb"}
-    playbook = ansible.Playbook("playbook.yml", vars=extra_vars)
-    repositories = (importlib_repository("test.unit.resources.simple"),)
-    return Scenario(playbook, repositories)
+def mock_ansible_runner(monkeypatch):
+    result = Mock(events=[], rc=0)
+    mock = Mock(return_value=result)
+    monkeypatch.setattr(ansible_runner, "run", mock)
+    return mock
 
 
-def test_run_ansible_calls_ansible_access(simple_scenario):
-    mock = Mock()
-    simple_scenario.run(ansible_access=mock)
-    args = mock.run.call_args.args
-    assert args[0].startswith(tempfile.gettempdir())
-    assert args[1] == simple_scenario.playbook
-    assert not Path(args[0]).exists()
+@pytest.fixture
+def simple_scenario(tmp_path, mock_ansible_runner) -> Scenario:
+    extravars = {"a": "aaa", "b": "bbb"}
+    playbook = ansible.Playbook("playbook.yml", vars=extravars)
+    repositories = (ansible.ImportlibRepository("test.unit.resources.simple"),)
+    return Scenario(playbook, repositories, tmp_path, mock_ansible_runner)
 
 
-def test_files_copied(simple_scenario, tmp_path):
-    simple_scenario.run(path=tmp_path)
+@pytest.fixture
+def simple_repository() -> ansible.Repository:
+    return ansible.ImportlibRepository("test.unit.resources.simple")
+
+
+def test_run_ansible_calls_ansible_runner(simple_scenario):
+    simple_scenario.run()
+    actual = simple_scenario.runner.call_args.kwargs
+    assert actual["private_data_dir"] == str(simple_scenario.path)
+    assert actual["playbook"] == "playbook.yml"
+    assert actual["extravars"] == {'a': 'aaa', 'b': 'bbb'}
+
+
+def test_files_copied(simple_scenario):
+    simple_scenario.run()
     for f in ["playbook.yml", "roles/tasks/main.yml"]:
-        assert (tmp_path / f).exists()
+        assert (simple_scenario.path / f).exists()
 
 
 @pytest.mark.parametrize(
@@ -68,31 +78,31 @@ def test_files_copied(simple_scenario, tmp_path):
         ),
     ],
 )
-def test_inventory(simple_scenario, tmp_path, hosts, expected):
-    simple_scenario.run(hosts=hosts, path=tmp_path)
-    actual = (tmp_path / "inventory").read_text()
+def test_inventory(simple_scenario, hosts, expected):
+    simple_scenario.run(hosts=hosts)
+    actual = (simple_scenario.path / "inventory").read_text()
     assert actual == expected
 
 
 def test_multi_playbook_assets():
-    repo = importlib_repository("test.unit.resources.multiple-playbooks")
+    repo = ansible.ImportlibRepository("test.unit.resources.multiple-playbooks")
     actual = sorted(str(asset.relative_path) for asset in repo.get_assets())
     assert actual == ["p1.yml", "p2.yml", "p3.yml"]
 
 
 def test_repository_ignores_init_py():
-    repo = importlib_repository("test.unit.resources.ignored_files")
+    repo = ansible.ImportlibRepository("test.unit.resources.ignored_files")
     actual = [asset.relative_path for asset in repo.get_assets()]
     assert actual == [Path("playbook.yml")]
 
 
 @pytest.mark.parametrize("module", ["lower_level", "top_level", "directory_vs_file"])
-def test_filename_conflicts(module):
+def test_filename_conflicts(module, tmp_path):
     playbook = ansible.Playbook("playbook.yml")
     modules = [
         "test.unit.resources.simple",
         f"test.unit.resources.conflict.{module}",
     ]
-    repos = tuple(importlib_repository(p) for p in modules)
+    repos = tuple(ansible.ImportlibRepository(p) for p in modules)
     with pytest.raises(FilenameConflict):
-        Scenario(playbook, repos).run()
+        Scenario(playbook, repos, tmp_path).run()
