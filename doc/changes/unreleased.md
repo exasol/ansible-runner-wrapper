@@ -14,4 +14,5 @@
 ## Refactorings
 
 * #22: Added integration tests
+* #29: Removed package `exasol.ds` to avoid collision in ai-lab
 * #31: Refactored `ansible.Context` and `ansible.Runner`
