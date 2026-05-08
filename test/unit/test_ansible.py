@@ -1,3 +1,4 @@
+import importlib
 from pathlib import Path
 from unittest.mock import (
     Mock,
@@ -44,13 +45,13 @@ def mock_ansible_runner(monkeypatch):
 def simple_scenario(tmp_path, mock_ansible_runner) -> Scenario:
     extravars = {"a": "aaa", "b": "bbb"}
     playbook = ansible.Playbook("playbook.yml", vars=extravars)
-    repositories = (ansible.ImportlibRepository("test.unit.resources.simple"),)
+    repositories = (ansible.ImportlibRepository("test.resources.simple"),)
     return Scenario(playbook, repositories, tmp_path, mock_ansible_runner)
 
 
 @pytest.fixture
 def simple_repository() -> ansible.Repository:
-    return ansible.ImportlibRepository("test.unit.resources.simple")
+    return ansible.ImportlibRepository("test.resources.simple")
 
 
 def test_run_ansible_calls_ansible_runner(simple_scenario):
@@ -68,7 +69,7 @@ def test_files_copied(simple_scenario):
 
 
 def test_importlib_resources_available_for_repository():
-    package = importlib.import_module("test.resources.utest.simple")
+    package = importlib.import_module("test.resources.simple")
     source_path = importlib.resources.files(package)
     assert source_path.joinpath("playbook.yml").is_file()
 
@@ -91,13 +92,13 @@ def test_inventory(simple_scenario, hosts, expected):
 
 
 def test_multi_playbook_assets():
-    repo = ansible.ImportlibRepository("test.unit.resources.multiple-playbooks")
+    repo = ansible.ImportlibRepository("test.resources.multiple-playbooks")
     actual = sorted(str(asset.relative_path) for asset in repo.get_assets())
     assert actual == ["p1.yml", "p2.yml", "p3.yml"]
 
 
 def test_repository_ignores_init_py():
-    repo = ansible.ImportlibRepository("test.unit.resources.ignored_files")
+    repo = ansible.ImportlibRepository("test.resources.ignored_files")
     actual = [asset.relative_path for asset in repo.get_assets()]
     assert actual == [Path("playbook.yml")]
 
@@ -106,8 +107,8 @@ def test_repository_ignores_init_py():
 def test_filename_conflicts(module, tmp_path):
     playbook = ansible.Playbook("playbook.yml")
     modules = [
-        "test.resources.utest.simple",
-        f"test.resources.utest.conflict.{module}",
+        "test.resources.simple",
+        f"test.resources.conflict.{module}",
     ]
     repos = tuple(ansible.ImportlibRepository(p) for p in modules)
     with pytest.raises(FilenameConflict):
