@@ -1,5 +1,4 @@
-from .access import Access
-from .context import Context
+from .context import copy_files
 from .facts import Facts
 from .inventory import Host
 from .playbook import Playbook
@@ -10,12 +9,11 @@ from .repository import (
 from .runner import Runner
 
 __all__ = [
-    "Access",
-    "Context",
-    "Host",
     "Facts",
+    "Host",
     "ImportlibRepository",
     "Playbook",
     "Repository",
     "Runner",
+    "copy_files",
 ]

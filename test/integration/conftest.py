@@ -8,7 +8,6 @@ import pytest
 from docker.models.containers import Container as DockerContainer
 
 LOG = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 @pytest.fixture(scope="session")
