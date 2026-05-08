@@ -78,12 +78,11 @@ Example Code
   from pathlib import Path
   import exasol.ansible as ansible
 
-  repositories = (ansible.ImportlibRepository("package.name.resources.ansible"),)
+  repo = ansible.ImportlibRepository("package.name.resources.ansible")
   playbook = ansible.Playbook("playbook.yml", vars={"key": "value"})
   host = ansible.Host("myhost", Path("/tmp/private_key.pem"))
 
-  with ansible.Context(ansible.Access(), repositories) as runner:
-      raw_facts = runner.run(playbook, hosts=(host,) retrieve_facts_from=host.name)
-
+  runner = ansible.Runner(repositories=(repo,))
+  raw_facts = runner.run(playbook, hosts=(host,) retrieve_facts_from=host.name)
   facts = ansible.Facts(raw_facts, prefixes=["pfx"])
   value = facts.get("parent", "child")
