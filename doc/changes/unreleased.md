@@ -2,6 +2,9 @@
 
 ## Summary
 
+This release fixes some bugs, adds a minimal user guide and integration tests,
+and applies some additional refactorings.
+
 ## Bugfixes
 
 * #26: Re-added `inventory.Host`
