@@ -1,5 +1,6 @@
 import contextlib
 import tempfile
+from collections.abc import Generator
 from pathlib import Path
 
 from exasol.ansible.repository import (
@@ -34,7 +35,7 @@ class AssetCopier:
 def copy_files(
     repositories: list[Repository] | tuple[Repository, ...],
     work_dir: Path | None = None,
-) -> Path:
+) -> Generator[Path]:
     with contextlib.ExitStack() as stack:
         if work_dir is None:
             temp_dir = stack.enter_context(tempfile.TemporaryDirectory())
