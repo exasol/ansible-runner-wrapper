@@ -58,7 +58,6 @@ def test_files_copied(simple_scenario, tmp_path):
 
 
 def test_importlib_resources_available_for_repository():
-    import exasol.ansible.repository as repository
 
     package = importlib.import_module("test.resources.utest.simple")
     source_path = importlib.resources.files(package)
