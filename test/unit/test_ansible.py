@@ -61,7 +61,7 @@ def test_importlib_resources_available_for_repository():
     import exasol.ansible.repository as repository
 
     package = importlib.import_module("test.resources.utest.simple")
-    source_path = repository.ir.files(package)
+    source_path = importlib.resources.files(package)
 
     assert source_path.joinpath("playbook.yml").is_file()
 
