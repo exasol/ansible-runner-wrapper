@@ -5,7 +5,7 @@
 ## Bugfixes
 
 * #26: Re-added `inventory.Host`
-* #29: Fixed ai-lab pytest import failure because of the package namespace collision
+* #29: Removed package `exasol.ds` to avoid collision in ai-lab
 
 ## Documentation
 

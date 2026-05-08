@@ -57,6 +57,15 @@ def test_files_copied(simple_scenario, tmp_path):
         assert (tmp_path / f).exists()
 
 
+def test_importlib_resources_available_for_repository():
+    import exasol.ansible.repository as repository
+
+    package = importlib.import_module("test.resources.utest.simple")
+    source_path = repository.ir.files(package)
+
+    assert source_path.joinpath("playbook.yml").is_file()
+
+
 @pytest.mark.parametrize(
     "hosts, expected",
     [
