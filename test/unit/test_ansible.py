@@ -58,7 +58,7 @@ def test_run_ansible_calls_ansible_runner(simple_scenario):
     actual = simple_scenario.runner.call_args.kwargs
     assert actual["private_data_dir"] == str(simple_scenario.path)
     assert actual["playbook"] == "playbook.yml"
-    assert actual["extravars"] == {'a': 'aaa', 'b': 'bbb'}
+    assert actual["extravars"] == {"a": "aaa", "b": "bbb"}
 
 
 def test_files_copied(simple_scenario):
