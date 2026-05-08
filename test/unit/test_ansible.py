@@ -67,6 +67,12 @@ def test_files_copied(simple_scenario):
         assert (simple_scenario.path / f).exists()
 
 
+def test_importlib_resources_available_for_repository():
+    package = importlib.import_module("test.resources.utest.simple")
+    source_path = importlib.resources.files(package)
+    assert source_path.joinpath("playbook.yml").is_file()
+
+
 @pytest.mark.parametrize(
     "hosts, expected",
     [
@@ -100,8 +106,8 @@ def test_repository_ignores_init_py():
 def test_filename_conflicts(module, tmp_path):
     playbook = ansible.Playbook("playbook.yml")
     modules = [
-        "test.unit.resources.simple",
-        f"test.unit.resources.conflict.{module}",
+        "test.resources.utest.simple",
+        f"test.resources.utest.conflict.{module}",
     ]
     repos = tuple(ansible.ImportlibRepository(p) for p in modules)
     with pytest.raises(FilenameConflict):

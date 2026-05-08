@@ -1,14 +1,9 @@
+import importlib.resources
 import logging
 from abc import abstractmethod
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
-
-try:
-    import importlib.resources as ir
-except ImportError:  # pragma: no cover
-    import importlib_resources as ir  # type: ignore[no-redef]
-
 
 logger = logging.getLogger(__name__)
 
@@ -132,7 +127,7 @@ class ImportlibRepository(Repository):
         """
         Traverse the repository and yield all copyable assets below it.
         """
-        source_path = ir.files(self._package)
+        source_path = importlib.resources.files(self._package)
         for child in source_path.iterdir():
             if _should_ignore(child):
                 continue
