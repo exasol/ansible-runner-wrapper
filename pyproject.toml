@@ -4,6 +4,7 @@ version = "2.0.0"
 description = "Python wrapper for running Ansible"
 authors = [
     {name = "Mykhailo Skliar", email = "mykhailo.skliar@exasol.com"},
+    {name="Christoph Kuhnke", email="christoph.kuhnke@exasol.com"},
     {name = "Exasol AG", email = "opensource@exasol.com"}
 ]
 requires-python = ">=3.10,<4.0"
