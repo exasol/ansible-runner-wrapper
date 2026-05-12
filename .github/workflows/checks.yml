@@ -18,7 +18,7 @@ jobs:
         id: set-up-python-and-poetry-environment
         uses: exasol/python-toolbox/.github/actions/python-environment@v6
         with:
-          python-version: "3.10"
+          python-version: "3.11"
           poetry-version: "2.3.0"
 
       - name: Check Version
@@ -39,7 +39,7 @@ jobs:
         id: set-up-python-and-poetry-environment
         uses: exasol/python-toolbox/.github/actions/python-environment@v6
         with:
-          python-version: "3.10"
+          python-version: "3.11"
           poetry-version: "2.3.0"
 
       - name: Build Documentation
@@ -65,7 +65,7 @@ jobs:
         id: set-up-python-and-poetry-environment
         uses: exasol/python-toolbox/.github/actions/python-environment@v6
         with:
-          python-version: "3.10"
+          python-version: "3.11"
           poetry-version: "2.3.0"
 
       - name: Check Changelog was Updated
@@ -80,7 +80,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-versions: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-versions: ["3.11", "3.12", "3.13", "3.14"]
     steps:
       - name: Check out Repository
         id: check-out-repository
@@ -115,7 +115,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-versions: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-versions: ["3.11", "3.12", "3.13", "3.14"]
 
     steps:
       - name: Check out Repository
@@ -141,7 +141,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-versions: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-versions: ["3.11", "3.12", "3.13", "3.14"]
 
     steps:
       - name: Check out Repository
@@ -181,7 +181,7 @@ jobs:
         id: set-up-python-and-poetry-environment
         uses: exasol/python-toolbox/.github/actions/python-environment@v6
         with:
-          python-version: "3.10"
+          python-version: "3.11"
           poetry-version: "2.3.0"
 
       - name: Check Format
@@ -203,7 +203,7 @@ jobs:
         id: set-up-python-and-poetry-environment
         uses: exasol/python-toolbox/.github/actions/python-environment@v6
         with:
-          python-version: "3.10"
+          python-version: "3.11"
           poetry-version: "2.3.0"
 
       - name: Build Package
@@ -218,7 +218,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-versions: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-versions: ["3.11", "3.12", "3.13", "3.14"]
 
     steps:
       - name: Check out Repository
