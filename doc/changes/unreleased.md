@@ -17,3 +17,4 @@
 ## Bugfixes
 
 * #36: Fixed fact retrieval with Ansible 12 / ansible-core 2.19 jsonfile fact cache
+* #37: Fixed report artifact validation after dropping Python 3.10 from CI
