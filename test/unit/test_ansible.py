@@ -1,4 +1,5 @@
 import importlib
+import json
 from pathlib import Path
 from unittest.mock import (
     Mock,
@@ -60,6 +61,49 @@ def test_run_ansible_calls_ansible_runner(simple_scenario):
     assert actual["private_data_dir"] == str(simple_scenario.path)
     assert actual["playbook"] == "playbook.yml"
     assert actual["extravars"] == {"a": "aaa", "b": "bbb"}
+
+
+def test_run_returns_legacy_fact_cache(
+    tmp_path, mock_ansible_runner, simple_repository
+):
+    raw_facts = {"my_facts": {"sample_fact": "value"}}
+    mock_ansible_runner.return_value.get_fact_cache.return_value = raw_facts
+
+    runner = ansible.Runner((simple_repository,), tmp_path)
+    actual = runner.run(ansible.Playbook("playbook.yml"), retrieve_facts_from="HHH")
+
+    assert actual == raw_facts
+
+
+def test_run_returns_ansible_2_19_prefixed_fact_cache(
+    tmp_path,
+    mock_ansible_runner,
+    simple_repository,
+):
+    cache_dir = tmp_path / "artifacts" / "run" / "fact_cache"
+    cache_dir.mkdir(parents=True)
+    payload = {
+        "my_facts": {
+            "value": {
+                "sample_fact": {
+                    "value": "value",
+                    "tags": [{"__ansible_type": "TrustedAsTemplate"}],
+                    "__ansible_type": "_AnsibleTaggedStr",
+                },
+            },
+            "tags": [{"__ansible_type": "Origin"}],
+            "__ansible_type": "_AnsibleTaggedDict",
+        },
+    }
+    (cache_dir / "s1_HHH").write_text(json.dumps({"__payload__": json.dumps(payload)}))
+    result = mock_ansible_runner.return_value
+    result.get_fact_cache.return_value = {}
+    result.config.fact_cache = str(cache_dir)
+
+    runner = ansible.Runner((simple_repository,), tmp_path)
+    actual = runner.run(ansible.Playbook("playbook.yml"), retrieve_facts_from="HHH")
+
+    assert actual == {"my_facts": {"sample_fact": "value"}}
 
 
 def test_files_copied(simple_scenario):

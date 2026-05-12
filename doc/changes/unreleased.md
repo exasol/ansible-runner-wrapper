@@ -13,3 +13,7 @@
 ## Security Issues
 
 * #34: Fixed security vulnerabilities in ansible and urllib3
+
+## Bugfixes
+
+* #36: Fixed fact retrieval with Ansible 12 / ansible-core 2.19 jsonfile fact cache

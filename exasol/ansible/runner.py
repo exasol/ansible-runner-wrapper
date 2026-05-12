@@ -27,6 +27,67 @@ class AnsibleException(RuntimeError):
     pass
 
 
+def _remove_ansible_tags(value: Any) -> Any:
+    if isinstance(value, dict):
+        if "__ansible_type" in value and "value" in value:
+            return _remove_ansible_tags(value["value"])
+        return {key: _remove_ansible_tags(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_remove_ansible_tags(item) for item in value]
+    return value
+
+
+def _decode_fact_cache(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {}
+
+    payload = value.get("__payload__")
+    if isinstance(payload, str):
+        return _remove_ansible_tags(json.loads(payload))
+    return _remove_ansible_tags(value)
+
+
+def _read_fact_cache_file(path: Path) -> dict[str, Any]:
+    return _decode_fact_cache(json.loads(path.read_text()))
+
+
+def _find_fact_cache_file(cache_dir: Path, host: str) -> Path | None:
+    if not cache_dir.is_dir():
+        return None
+
+    direct = cache_dir / host
+    if direct.exists():
+        return direct
+
+    for candidate in cache_dir.iterdir():
+        prefix, separator, name = candidate.name.partition("_")
+        if (
+            separator
+            and name == host
+            and prefix.startswith("s")
+            and prefix[1:].isdigit()
+        ):
+            return candidate
+
+    return None
+
+
+def _get_fact_cache(result: Any, host: str) -> dict[str, Any]:
+    facts = _decode_fact_cache(result.get_fact_cache(host))
+    if facts:
+        return facts
+
+    if fact_cache := getattr(getattr(result, "config", None), "fact_cache", None):
+        cache_dir = Path(fact_cache)
+    else:
+        return facts
+
+    if cache_file := _find_fact_cache_file(cache_dir, host):
+        return _read_fact_cache_file(cache_file)
+
+    return facts
+
+
 class Runner:
     def __init__(
         self,
@@ -72,6 +133,6 @@ class Runner:
                 raise AnsibleException(result.rc)
 
             if host := retrieve_facts_from:
-                return result.get_fact_cache(host)
+                return _get_fact_cache(result, host)
             else:
                 return {}
