@@ -7,14 +7,13 @@ authors = [
     {name="Christoph Kuhnke", email="christoph.kuhnke@exasol.com"},
     {name = "Exasol AG", email = "opensource@exasol.com"}
 ]
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.11,<4.0"
 readme = "README.rst"
 license = "MIT"
 license-files = ["LICENSE"]
 keywords = ['exasol', 'ansible_runner_wrapper']
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -24,8 +23,9 @@ classifiers = [
 
 dependencies = [
     "ansible-runner (>=2.4.3,<3.0.0)",
-    "ansible (>=10.7.0, <11)",
+    "ansible (>=12.2.0, <13)",
     "types-docker (>=7.1.0.20260409,<8.0.0.0)",
+    "urllib3 (>=2.7.0,<3.0.0)",
 ]
 
 [dependency-groups]

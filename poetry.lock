@@ -57,37 +57,37 @@ files = [
 
 [[package]]
 name = "ansible"
-version = "10.7.0"
+version = "12.3.0"
 description = "Radically simple IT automation"
 optional = false
-python-versions = ">=3.10"
+python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "ansible-10.7.0-py3-none-any.whl", hash = "sha256:0089f08e047ceb70edd011be009f5c6273add613fbe491e9697c0556c989d8ea"},
-    {file = "ansible-10.7.0.tar.gz", hash = "sha256:59d29e3de1080e740dfa974517d455217601b16d16880314d9be26145c68dc22"},
+    {file = "ansible-12.3.0-py3-none-any.whl", hash = "sha256:cd156f82fa87f7a899212b0efa9f7ca3a24d609212de9f78428a572eb01e5414"},
+    {file = "ansible-12.3.0.tar.gz", hash = "sha256:02721f6fb432ddd47f1044ac49b04b5e9ae08890bd427def8df3db1607aeec51"},
 ]
 
 [package.dependencies]
-ansible-core = ">=2.17.7,<2.18.0"
+ansible-core = ">=2.19.5,<2.20.0"
 
 [[package]]
 name = "ansible-core"
-version = "2.17.14"
+version = "2.19.9"
 description = "Radically simple IT automation"
 optional = false
-python-versions = ">=3.10"
+python-versions = ">=3.11"
 groups = ["main"]
 files = [
-    {file = "ansible_core-2.17.14-py3-none-any.whl", hash = "sha256:34a49582a57c2f2af17ede2cefd3b3602a2d55d22089f3928570d52030cafa35"},
-    {file = "ansible_core-2.17.14.tar.gz", hash = "sha256:7c17fee39f8c29d70e3282a7e9c10bd70d5cd4fd13ddffc5dcaa52adbd142ff8"},
+    {file = "ansible_core-2.19.9-py3-none-any.whl", hash = "sha256:18de80e3ea5a89d2ea84e4d4a3c6d7c121ea62fc3af2877ba083784e3d90b419"},
+    {file = "ansible_core-2.19.9.tar.gz", hash = "sha256:74107de13d188ff579fb215bc3eb875c9198803215d6378ed588c7f35aba12f5"},
 ]
 
 [package.dependencies]
 cryptography = "*"
-jinja2 = ">=3.0.0"
+jinja2 = ">=3.1.0"
 packaging = "*"
 PyYAML = ">=5.1"
-resolvelib = ">=0.5.3,<1.1.0"
+resolvelib = ">=0.5.3,<2.0.0"
 
 [[package]]
 name = "ansible-runner"
@@ -172,9 +172,6 @@ files = [
     {file = "astroid-4.0.4.tar.gz", hash = "sha256:986fed8bcf79fb82c78b18a53352a0b287a73817d6dbcfba3162da36667c49a0"},
 ]
 
-[package.dependencies]
-typing-extensions = {version = ">=4", markers = "python_version < \"3.11\""}
-
 [[package]]
 name = "attrs"
 version = "26.1.0"
@@ -224,7 +221,7 @@ description = "Backport of CPython tarfile module"
 optional = false
 python-versions = ">=3.8"
 groups = ["dev"]
-markers = "python_version < \"3.12\" and platform_machine != \"ppc64le\" and platform_machine != \"s390x\""
+markers = "platform_machine != \"ppc64le\" and platform_machine != \"s390x\" and python_version == \"3.11\""
 files = [
     {file = "backports.tarfile-1.2.0-py3-none-any.whl", hash = "sha256:77e284d754527b01fb1e6fa8a1afe577858ebe4e9dad8919e34c862cb399bc34"},
     {file = "backports_tarfile-1.2.0.tar.gz", hash = "sha256:d75e02c268746e1b8144c278978b6e98e85de6ad16f8e4b0844a154557eca991"},
@@ -251,7 +248,6 @@ colorama = {version = ">=0.3.9", markers = "platform_system == \"Windows\""}
 PyYAML = ">=5.3.1"
 rich = "*"
 stevedore = ">=1.20.0"
-tomli = {version = ">=1.1.0", optional = true, markers = "python_version < \"3.11\" and extra == \"toml\""}
 
 [package.extras]
 baseline = ["GitPython (>=3.1.30)"]
@@ -327,8 +323,6 @@ packaging = ">=22.0"
 pathspec = ">=1.0.0"
 platformdirs = ">=2"
 pytokens = ">=0.4.0,<0.5.0"
-tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
-typing-extensions = {version = ">=4.0.1", markers = "python_version < \"3.11\""}
 
 [package.extras]
 colorama = ["colorama (>=0.4.3)"]
@@ -864,7 +858,6 @@ markers = {dev = "platform_machine != \"ppc64le\" and platform_machine != \"s390
 
 [package.dependencies]
 cffi = {version = ">=2.0.0", markers = "python_full_version >= \"3.9.0\" and platform_python_implementation != \"PyPy\""}
-typing-extensions = {version = ">=4.13.2", markers = "python_full_version < \"3.11.0\""}
 
 [package.extras]
 docs = ["sphinx (>=5.3.0)", "sphinx-inline-tabs", "sphinx-rtd-theme (>=3.0.0)"]
@@ -945,7 +938,6 @@ files = [
 
 [package.dependencies]
 packaging = "*"
-tomli = {version = "*", markers = "python_version < \"3.11\""}
 
 [package.extras]
 cli = ["tomli ; python_version < \"3.11\""]
@@ -1094,25 +1086,6 @@ sphinxcontrib-mermaid = ">=2.0.0,<3.0.0"
 structlog = ">=25.5.0,<26.0.0"
 twine = ">=6.1.0,<7"
 typer = {version = ">=0.7.0", extras = ["all"]}
-
-[[package]]
-name = "exceptiongroup"
-version = "1.3.1"
-description = "Backport of PEP 654 (exception groups)"
-optional = false
-python-versions = ">=3.7"
-groups = ["dev"]
-markers = "python_version == \"3.10\""
-files = [
-    {file = "exceptiongroup-1.3.1-py3-none-any.whl", hash = "sha256:a7a39a3bd276781e98394987d3a5701d0c4edffb633bb7a5144577f82c773598"},
-    {file = "exceptiongroup-1.3.1.tar.gz", hash = "sha256:8b412432c6055b0b7d14c310000ae93352ed6754f70fa8f7c34141f91c4e3219"},
-]
-
-[package.dependencies]
-typing-extensions = {version = ">=4.6.0", markers = "python_version < \"3.13\""}
-
-[package.extras]
-test = ["pytest (>=6)"]
 
 [[package]]
 name = "filelock"
@@ -1370,7 +1343,7 @@ description = "Get image size from headers (BMP/PNG/JPEG/JPEG2000/GIF/TIFF/SVG/N
 optional = false
 python-versions = "<3.15,>=3.10"
 groups = ["dev"]
-markers = "python_version < \"3.12\""
+markers = "python_version == \"3.11\""
 files = [
     {file = "imagesize-2.0.0-py2.py3-none-any.whl", hash = "sha256:5667c5bbb57ab3f1fa4bc366f4fbc971db3d5ed011fd2715fd8001f782718d96"},
     {file = "imagesize-2.0.0.tar.gz", hash = "sha256:8e8358c4a05c304f1fccf7ff96f036e7243a189e9e42e90851993c558cfe9ee3"},
@@ -1392,7 +1365,6 @@ files = [
 click = ">=6"
 grimp = ">=3.14"
 rich = ">=14.2.0"
-tomli = {version = ">=1.2.1", markers = "python_version < \"3.11\""}
 typing-extensions = ">=3.10.0.0"
 
 [package.extras]
@@ -1405,7 +1377,7 @@ description = "Read metadata from Python packages"
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
-markers = "python_version < \"3.12\" and platform_machine != \"ppc64le\" and platform_machine != \"s390x\""
+markers = "platform_machine != \"ppc64le\" and platform_machine != \"s390x\" and python_version == \"3.11\""
 files = [
     {file = "importlib_metadata-9.0.0-py3-none-any.whl", hash = "sha256:2d21d1cc5a017bd0559e36150c21c830ab1dc304dedd1b7ea85d20f45ef3edd7"},
     {file = "importlib_metadata-9.0.0.tar.gz", hash = "sha256:a4f57ab599e6a2e3016d7595cfd72eb4661a5106e787a95bcc90c7105b831efc"},
@@ -2061,7 +2033,6 @@ files = [
 librt = {version = ">=0.8.0", markers = "platform_python_implementation != \"PyPy\""}
 mypy_extensions = ">=1.0.0"
 pathspec = ">=1.0.0"
-tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 typing_extensions = ">=4.6.0"
 
 [package.extras]
@@ -2195,7 +2166,6 @@ colorlog = ">=2.6.1,<7"
 dependency-groups = ">=1.1"
 humanize = ">=4"
 packaging = ">=22"
-tomli = {version = ">=1.1", markers = "python_version < \"3.11\""}
 virtualenv = {version = ">=20.15", markers = "python_version >= \"3.10\""}
 
 [package.extras]
@@ -2338,7 +2308,6 @@ files = [
 
 [package.dependencies]
 prettytable = ">=3.12.0"
-tomli = {version = ">=2", markers = "python_version < \"3.11\""}
 
 [package.extras]
 dev = ["docutils (>=0.19)", "mypy", "pip-tools", "pypandoc", "pytest-cov", "pytest-runner", "ruff", "tomli-w", "virtualenv (>=21.1.0)", "wheel"]
@@ -2681,14 +2650,12 @@ files = [
 astroid = ">=4.0.2,<=4.1.dev0"
 colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
 dill = [
-    {version = ">=0.2", markers = "python_version < \"3.11\""},
     {version = ">=0.3.7", markers = "python_version >= \"3.12\""},
     {version = ">=0.3.6", markers = "python_version == \"3.11\""},
 ]
 isort = ">=5,<5.13 || >5.13,<9"
 mccabe = ">=0.6,<0.8"
 platformdirs = ">=2.2"
-tomli = {version = ">=1.1", markers = "python_version < \"3.11\""}
 tomlkit = ">=0.10.1"
 
 [package.extras]
@@ -2743,12 +2710,10 @@ files = [
 
 [package.dependencies]
 colorama = {version = ">=0.4", markers = "sys_platform == \"win32\""}
-exceptiongroup = {version = ">=1", markers = "python_version < \"3.11\""}
 iniconfig = ">=1.0.1"
 packaging = ">=22"
 pluggy = ">=1.5,<2"
 pygments = ">=2.7.2"
-tomli = {version = ">=1", markers = "python_version < \"3.11\""}
 
 [package.extras]
 dev = ["argcomplete", "attrs (>=19.2)", "hypothesis (>=3.56)", "mock", "requests", "setuptools", "xmlschema"]
@@ -3128,7 +3093,7 @@ description = "C version of reader, parser and emitter for ruamel.yaml derived f
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
-markers = "python_version < \"3.14\" and platform_python_implementation == \"CPython\""
+markers = "platform_python_implementation == \"CPython\" and python_version < \"3.14\""
 files = [
     {file = "ruamel_yaml_clib-0.2.15-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:88eea8baf72f0ccf232c22124d122a7f26e8a24110a0273d9bcddcb0f7e1fa03"},
     {file = "ruamel_yaml_clib-0.2.15-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:9b6f7d74d094d1f3a4e157278da97752f16ee230080ae331fcc219056ca54f77"},
@@ -3344,7 +3309,6 @@ sphinxcontrib-htmlhelp = ">=2.0.0"
 sphinxcontrib-jsmath = "*"
 sphinxcontrib-qthelp = "*"
 sphinxcontrib-serializinghtml = ">=1.1.9"
-tomli = {version = ">=2", markers = "python_version < \"3.11\""}
 
 [package.extras]
 docs = ["sphinxcontrib-websupport"]
@@ -3410,39 +3374,11 @@ rtd = ["ipython", "myst-nb", "sphinx", "sphinx-book-theme", "sphinx-examples"]
 
 [[package]]
 name = "sphinx-design"
-version = "0.6.1"
-description = "A sphinx extension for designing beautiful, view size responsive web components."
-optional = false
-python-versions = ">=3.9"
-groups = ["dev"]
-markers = "python_version == \"3.10\""
-files = [
-    {file = "sphinx_design-0.6.1-py3-none-any.whl", hash = "sha256:b11f37db1a802a183d61b159d9a202314d4d2fe29c163437001324fe2f19549c"},
-    {file = "sphinx_design-0.6.1.tar.gz", hash = "sha256:b44eea3719386d04d765c1a8257caca2b3e6f8421d7b3a5e742c0fd45f84e632"},
-]
-
-[package.dependencies]
-sphinx = ">=6,<9"
-
-[package.extras]
-code-style = ["pre-commit (>=3,<4)"]
-rtd = ["myst-parser (>=2,<4)"]
-testing = ["defusedxml", "myst-parser (>=2,<4)", "pytest (>=8.3,<9.0)", "pytest-cov", "pytest-regressions"]
-testing-no-myst = ["defusedxml", "pytest (>=8.3,<9.0)", "pytest-cov", "pytest-regressions"]
-theme-furo = ["furo (>=2024.7.18,<2024.8.0)"]
-theme-im = ["sphinx-immaterial (>=0.12.2,<0.13.0)"]
-theme-pydata = ["pydata-sphinx-theme (>=0.15.2,<0.16.0)"]
-theme-rtd = ["sphinx-rtd-theme (>=2.0,<3.0)"]
-theme-sbt = ["sphinx-book-theme (>=1.1,<2.0)"]
-
-[[package]]
-name = "sphinx-design"
 version = "0.7.0"
 description = "A sphinx extension for designing beautiful, view size responsive web components."
 optional = false
 python-versions = ">=3.11"
 groups = ["dev"]
-markers = "python_version >= \"3.11\""
 files = [
     {file = "sphinx_design-0.7.0-py3-none-any.whl", hash = "sha256:f82bf179951d58f55dca78ab3706aeafa496b741a91b1911d371441127d64282"},
     {file = "sphinx_design-0.7.0.tar.gz", hash = "sha256:d2a3f5b19c24b916adb52f97c5f00efab4009ca337812001109084a740ec9b7a"},
@@ -3500,30 +3436,11 @@ standard-imghdr = {version = "3.10.14", markers = "python_version >= \"3.13\""}
 
 [[package]]
 name = "sphinx-prompt"
-version = "1.8.0"
-description = "Sphinx directive to add unselectable prompt"
-optional = false
-python-versions = ">=3.9,<4.0"
-groups = ["dev"]
-markers = "python_version == \"3.10\""
-files = [
-    {file = "sphinx_prompt-1.8.0-py3-none-any.whl", hash = "sha256:369ecc633f0711886f9b3a078c83264245be1adf46abeeb9b88b5519e4b51007"},
-    {file = "sphinx_prompt-1.8.0.tar.gz", hash = "sha256:47482f86fcec29662fdfd23e7c04ef03582714195d01f5d565403320084372ed"},
-]
-
-[package.dependencies]
-docutils = "*"
-pygments = "*"
-Sphinx = ">=7.0.0,<8.0.0"
-
-[[package]]
-name = "sphinx-prompt"
 version = "1.10.2"
 description = "Sphinx directive to add unselectable prompt"
 optional = false
 python-versions = ">=3.11"
 groups = ["dev"]
-markers = "python_version >= \"3.11\""
 files = [
     {file = "sphinx_prompt-1.10.2-py3-none-any.whl", hash = "sha256:6594337962c4b1498602e6984634bed4a0dc7955852e3cfc255eb0af766ed859"},
     {file = "sphinx_prompt-1.10.2.tar.gz", hash = "sha256:47b592ba75caebd044b0eddf7a5a1b6e0aef6df587b034377cd101a999b686ba"},
@@ -3753,9 +3670,6 @@ files = [
     {file = "structlog-25.5.0.tar.gz", hash = "sha256:098522a3bebed9153d4570c6d0288abf80a031dfdb2048d59a49e9dc2190fc98"},
 ]
 
-[package.dependencies]
-typing-extensions = {version = "*", markers = "python_version < \"3.11\""}
-
 [[package]]
 name = "tabulate"
 version = "0.10.0"
@@ -3946,12 +3860,11 @@ version = "4.15.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
 optional = false
 python-versions = ">=3.9"
-groups = ["main", "dev"]
+groups = ["dev"]
 files = [
     {file = "typing_extensions-4.15.0-py3-none-any.whl", hash = "sha256:f0fa19c6845758ab08074a0cfa8b7aecb71c999ca73d62883bc25cc018c4e548"},
     {file = "typing_extensions-4.15.0.tar.gz", hash = "sha256:0cea48d173cc12fa28ecabc3b837ea3cf6f38c6d1136f85cbaaf598984861466"},
 ]
-markers = {main = "python_version == \"3.10\""}
 
 [[package]]
 name = "typing-inspection"
@@ -3970,14 +3883,14 @@ typing-extensions = ">=4.12.0"
 
 [[package]]
 name = "urllib3"
-version = "2.6.3"
+version = "2.7.0"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 groups = ["main", "dev"]
 files = [
-    {file = "urllib3-2.6.3-py3-none-any.whl", hash = "sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4"},
-    {file = "urllib3-2.6.3.tar.gz", hash = "sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed"},
+    {file = "urllib3-2.7.0-py3-none-any.whl", hash = "sha256:9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897"},
+    {file = "urllib3-2.7.0.tar.gz", hash = "sha256:231e0ec3b63ceb14667c67be60f2f2c40a518cb38b03af60abc813da26505f4c"},
 ]
 
 [package.extras]
@@ -4003,7 +3916,6 @@ distlib = ">=0.3.7,<1"
 filelock = {version = ">=3.24.2,<4", markers = "python_version >= \"3.10\""}
 platformdirs = ">=3.9.1,<5"
 python-discovery = ">=1.2.2"
-typing-extensions = {version = ">=4.13.2", markers = "python_version < \"3.11\""}
 
 [[package]]
 name = "wcwidth"
@@ -4036,7 +3948,7 @@ description = "Backport of pathlib-compatible object wrapper for zip files"
 optional = false
 python-versions = ">=3.9"
 groups = ["dev"]
-markers = "python_version < \"3.12\" and platform_machine != \"ppc64le\" and platform_machine != \"s390x\""
+markers = "platform_machine != \"ppc64le\" and platform_machine != \"s390x\" and python_version == \"3.11\""
 files = [
     {file = "zipp-3.23.1-py3-none-any.whl", hash = "sha256:0b3596c50a5c700c9cb40ba8d86d9f2cc4807e9bedb06bcdf7fac85633e444dc"},
     {file = "zipp-3.23.1.tar.gz", hash = "sha256:32120e378d32cd9714ad503c1d024619063ec28aad2248dc6672ad13edfa5110"},
@@ -4052,5 +3964,5 @@ type = ["pytest-mypy"]
 
 [metadata]
 lock-version = "2.1"
-python-versions = ">=3.10,<4.0"
-content-hash = "0fe80a517114c5d89d4c79fca2592fe40345ef3a1809742c5d72476329a2f0de"
+python-versions = ">=3.11,<4.0"
+content-hash = "c712e55f298ddd07554efd67e380c52a177f47d6ec0b220f2042a3a0d641e4db"
