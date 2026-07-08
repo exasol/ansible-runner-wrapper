@@ -2,9 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from pydantic import computed_field
-
 from exasol.toolbox.config import BaseConfig
+from pydantic import computed_field
 
 
 class ProjectConfig(BaseConfig):
