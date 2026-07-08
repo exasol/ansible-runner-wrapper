@@ -27,6 +27,46 @@ class AnsibleException(RuntimeError):
     pass
 
 
+def _normalize_ansible_value(value: Any) -> Any:
+    if isinstance(value, list):
+        return [_normalize_ansible_value(item) for item in value]
+
+    if not isinstance(value, dict):
+        return value
+
+    if set(value).issubset({"value", "tags", "__ansible_type"}) and "value" in value:
+        return _normalize_ansible_value(value["value"])
+
+    if set(value) == {"__payload__"} and isinstance(value["__payload__"], str):
+        return _normalize_ansible_value(json.loads(value["__payload__"]))
+
+    return {
+        key: _normalize_ansible_value(item)
+        for key, item in value.items()
+        if key != "tags"
+    }
+
+
+def _read_fact_cache_file(path: Path) -> dict[str, Any]:
+    return _normalize_ansible_value(json.loads(path.read_text()))
+
+
+def _retrieve_fact_cache(result: ansible_runner.Runner, host: str) -> dict[str, Any]:
+    raw_facts = result.get_fact_cache(host)
+    if raw_facts:
+        return _normalize_ansible_value(raw_facts)
+
+    fact_cache_dir = Path(result.config.fact_cache)
+    if not fact_cache_dir.exists():
+        return {}
+
+    for candidate in fact_cache_dir.iterdir():
+        if candidate.name == host or candidate.name.endswith(f"_{host}"):
+            return _read_fact_cache_file(candidate)
+
+    return {}
+
+
 class Runner:
     def __init__(
         self,
@@ -72,6 +112,7 @@ class Runner:
                 raise AnsibleException(result.rc)
 
             if host := retrieve_facts_from:
-                return result.get_fact_cache(host)
+                return _retrieve_fact_cache(result, host)
+                #return result.get_fact_cache(host)
             else:
                 return {}
