@@ -113,6 +113,5 @@ class Runner:
 
             if host := retrieve_facts_from:
                 return _retrieve_fact_cache(result, host)
-                #return result.get_fact_cache(host)
             else:
                 return {}
