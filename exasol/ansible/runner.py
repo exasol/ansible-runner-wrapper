@@ -34,7 +34,11 @@ def _normalize_ansible_value(value: Any) -> Any:
     if not isinstance(value, dict):
         return value
 
-    if set(value).issubset({"value", "tags", "__ansible_type"}) and "value" in value:
+    if (
+        set(value).issubset({"value", "tags", "__ansible_type"})
+        and "value" in value
+        and "__ansible_type" in value
+    ):
         return _normalize_ansible_value(value["value"])
 
     if set(value) == {"__payload__"} and isinstance(value["__payload__"], str):

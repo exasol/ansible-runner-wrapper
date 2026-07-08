@@ -115,6 +115,18 @@ def test_normalize_ansible_value_preserves_plain_dict_entries_and_lists() -> Non
     assert actual == {"plain": "text", "tagged": "normalized", "items": [42]}
 
 
+def test_normalize_ansible_value_does_not_unwrap_plain_value_dicts() -> None:
+    value = {
+        "result": {
+            "value": 1,
+        }
+    }
+
+    actual = _normalize_ansible_value(value)
+
+    assert actual == value
+
+
 def test_event_handler_returns_false_without_numeric_duration() -> None:
     runner = Runner(repositories=())
 
