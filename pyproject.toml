@@ -7,15 +7,13 @@ authors = [
     {name="Christoph Kuhnke", email="christoph.kuhnke@exasol.com"},
     {name = "Exasol AG", email = "opensource@exasol.com"}
 ]
-requires-python = ">=3.10,<4.0"
+requires-python = ">=3.12,<4.0"
 readme = "README.rst"
 license = "MIT"
 license-files = ["LICENSE"]
 keywords = ['exasol', 'ansible_runner_wrapper']
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14"
@@ -24,17 +22,17 @@ classifiers = [
 
 dependencies = [
     "ansible-runner (>=2.4.3,<3.0.0)",
-    "ansible (>=10.7.0, <11)",
+    "ansible (>=14.1.0, <15)",
     "types-docker (>=7.1.0.20260409,<8.0.0.0)",
 ]
 
 [dependency-groups]
 dev = [
-    "exasol-toolbox>=6.3.0,<7",
+    "exasol-toolbox>=10.2.1,<11",
     "pip>=26.1",
-    "pytest (>=9.0.3,<10.0.0)",
+    "pytest (>=9.1.1,<10.0.0)",
     "docker (>=7.1.0, <8); sys_platform!=\"win32\"",
-    "requests>=2.33.0",
+    "requests>=2.34.2,<3",
 ]
 
 [tool.poetry]
