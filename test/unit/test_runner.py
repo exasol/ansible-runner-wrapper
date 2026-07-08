@@ -28,15 +28,21 @@ def create_result(
     )
 
 
-def test_retrieve_fact_cache_supports_legacy_ansible_runner_output(tmp_path: Path) -> None:
-    result = create_result(tmp_path, inline_cache={"my_facts": {"sample_fact": "value"}})
+def test_retrieve_fact_cache_supports_legacy_ansible_runner_output(
+    tmp_path: Path,
+) -> None:
+    result = create_result(
+        tmp_path, inline_cache={"my_facts": {"sample_fact": "value"}}
+    )
 
     actual = _retrieve_fact_cache(result, "ARW_ITEST")
 
     assert actual == {"my_facts": {"sample_fact": "value"}}
 
 
-def test_retrieve_fact_cache_supports_ansible_14_fact_cache_format(tmp_path: Path) -> None:
+def test_retrieve_fact_cache_supports_ansible_14_fact_cache_format(
+    tmp_path: Path,
+) -> None:
     result = create_result(tmp_path)
     payload = {
         "__payload__": json.dumps(
@@ -62,7 +68,9 @@ def test_retrieve_fact_cache_supports_ansible_14_fact_cache_format(tmp_path: Pat
     assert actual == {"my_facts": {"sample_fact": "/tmp/sample-directory"}}
 
 
-def test_retrieve_fact_cache_returns_empty_when_cache_dir_is_missing(tmp_path: Path) -> None:
+def test_retrieve_fact_cache_returns_empty_when_cache_dir_is_missing(
+    tmp_path: Path,
+) -> None:
     result = SimpleNamespace(
         config=SimpleNamespace(fact_cache=str(tmp_path / "missing")),
         get_fact_cache=lambda host: {},
@@ -73,7 +81,9 @@ def test_retrieve_fact_cache_returns_empty_when_cache_dir_is_missing(tmp_path: P
     assert actual == {}
 
 
-def test_retrieve_fact_cache_returns_empty_when_host_cache_file_is_missing(tmp_path: Path) -> None:
+def test_retrieve_fact_cache_returns_empty_when_host_cache_file_is_missing(
+    tmp_path: Path,
+) -> None:
     result = create_result(tmp_path)
     (tmp_path / "fact_cache" / "s1_OTHER").write_text("{}")
 
