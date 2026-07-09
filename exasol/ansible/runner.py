@@ -41,9 +41,6 @@ def _normalize_ansible_value(value: Any) -> Any:
     ):
         return _normalize_ansible_value(value["value"])
 
-    if set(value) == {"__payload__"} and isinstance(value["__payload__"], str):
-        return _normalize_ansible_value(json.loads(value["__payload__"]))
-
     return {
         key: _normalize_ansible_value(item)
         for key, item in value.items()
@@ -52,7 +49,10 @@ def _normalize_ansible_value(value: Any) -> Any:
 
 
 def _read_fact_cache_file(path: Path) -> dict[str, Any]:
-    return _normalize_ansible_value(json.loads(path.read_text()))
+    content = json.loads(path.read_text())
+    if isinstance(content, dict) and set(content) == {"__payload__"}:
+        content = json.loads(content["__payload__"])
+    return _normalize_ansible_value(content)
 
 
 def _retrieve_fact_cache(result: ansible_runner.Runner, host: str) -> dict[str, Any]:
@@ -63,6 +63,16 @@ def _retrieve_fact_cache(result: ansible_runner.Runner, host: str) -> dict[str, 
     fact_cache_dir = Path(result.config.fact_cache)
     if not fact_cache_dir.exists():
         return {}
+
+    fact_cache_prefix = getattr(result.config, "fact_cache_prefix", "")
+    candidate_names = [host]
+    if fact_cache_prefix:
+        candidate_names.insert(0, f"{fact_cache_prefix}{host}")
+
+    for candidate_name in candidate_names:
+        candidate_path = fact_cache_dir / candidate_name
+        if candidate_path.exists():
+            return _read_fact_cache_file(candidate_path)
 
     for candidate in fact_cache_dir.iterdir():
         if candidate.name == host or candidate.name.endswith(f"_{host}"):

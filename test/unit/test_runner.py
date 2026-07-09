@@ -19,11 +19,14 @@ from exasol.ansible.runner import (
 def create_result(
     tmp_path: Path,
     inline_cache: dict | None = None,
+    fact_cache_prefix: str = "s1_",
 ) -> SimpleNamespace:
     fact_cache_dir = tmp_path / "fact_cache"
     fact_cache_dir.mkdir()
     return SimpleNamespace(
-        config=SimpleNamespace(fact_cache=str(fact_cache_dir)),
+        config=SimpleNamespace(
+            fact_cache=str(fact_cache_dir), fact_cache_prefix=fact_cache_prefix
+        ),
         get_fact_cache=lambda host: inline_cache or {},
     )
 
@@ -125,6 +128,40 @@ def test_normalize_ansible_value_does_not_unwrap_plain_value_dicts() -> None:
     actual = _normalize_ansible_value(value)
 
     assert actual == value
+
+
+def test_normalize_ansible_value_preserves_plain_payload_dicts() -> None:
+    value = {
+        "token": {
+            "__payload__": "abc",
+        }
+    }
+
+    actual = _normalize_ansible_value(value)
+
+    assert actual == value
+
+
+def test_retrieve_fact_cache_supports_custom_fact_cache_prefix(
+    tmp_path: Path,
+) -> None:
+    result = create_result(tmp_path, fact_cache_prefix="prod-")
+    payload = {
+        "__payload__": json.dumps(
+            {
+                "my_facts": {
+                    "value": {"sample_fact": "value"},
+                    "__ansible_type": "_AnsibleTaggedDict",
+                    "tags": [],
+                }
+            }
+        )
+    }
+    (tmp_path / "fact_cache" / "prod-ARW_ITEST").write_text(json.dumps(payload))
+
+    actual = _retrieve_fact_cache(result, "ARW_ITEST")
+
+    assert actual == {"my_facts": {"sample_fact": "value"}}
 
 
 def test_event_handler_returns_false_without_numeric_duration() -> None:
