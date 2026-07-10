@@ -25,7 +25,7 @@ Python wrapper for running Ansible
 🔌️ Prerequisites
 -----------------
 
-- `Python <https://www.python.org/>`__ >= 3.10
+- `Python <https://www.python.org/>`__ >= 3.12
 
 💾 Installation
 ---------------

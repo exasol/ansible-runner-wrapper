@@ -17,6 +17,7 @@ from exasol.ansible.context import copy_files
 from exasol.ansible.facts import Facts
 from exasol.ansible.playbook import Playbook
 from exasol.ansible.repository import Repository
+from exasol.ansible.result import Result
 
 logger = logging.getLogger(__name__)
 
@@ -38,10 +39,7 @@ class Runner:
 
     def event_handler(self, event: Event) -> bool:
         duration = Facts(event).get("event_data", "duration")
-        if type(duration) not in (int, float):
-            return False  # nothing to process
-
-        if duration > 1.5:
+        if type(duration) in (int, float) and duration > 1.5:
             logger.info("duration: %s seconds", round(duration))
 
         return True
@@ -50,8 +48,15 @@ class Runner:
         self,
         playbook: Playbook,
         hosts: tuple[inventory.Host, ...] = (),
-        retrieve_facts_from: str = "",
-    ) -> dict[str, Any]:
+    ) -> Result:
+        """Run a playbook and return the ansible execution result.
+
+        The returned ``Result`` provides access to runner metadata and
+        events. It also exposes ``Result.get_facts()``, but fact retrieval
+        relies on internal Ansible APIs and file formats and may break with
+        future Ansible changes. Prefer stats instead of facts once issue
+        #44 is implemented.
+        """
         quiet = not logger.isEnabledFor(logging.INFO)
         event_handler = None if quiet else self.event_handler
         with copy_files(repositories=self._repos, work_dir=self._path) as work_dir:
@@ -70,8 +75,4 @@ class Runner:
 
             if result.rc != 0:
                 raise AnsibleException(result.rc)
-
-            if host := retrieve_facts_from:
-                return result.get_fact_cache(host)
-            else:
-                return {}
+            return Result.from_runner(result)
