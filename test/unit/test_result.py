@@ -33,7 +33,10 @@ def test_get_facts_supports_legacy_ansible_runner_output(tmp_path: Path) -> None
         tmp_path, inline_cache={"my_facts": {"sample_fact": "value"}}
     )
 
-    actual = result.get_facts("ARW_ITEST")
+    with pytest.warns(
+        UserWarning, match="Result.get_facts\\(\\) relies on internal Ansible APIs"
+    ):
+        actual = result.get_facts("ARW_ITEST")
 
     assert actual == {"my_facts": {"sample_fact": "value"}}
 
@@ -61,7 +64,8 @@ def test_get_facts_supports_ansible_14_fact_cache_format(tmp_path: Path) -> None
     (fact_cache_dir / "s1_ARW_ITEST").write_text(json.dumps(payload))
     result = create_result(tmp_path)
 
-    actual = result.get_facts("ARW_ITEST")
+    with pytest.warns(UserWarning, match="Prefer stats instead of facts"):
+        actual = result.get_facts("ARW_ITEST")
 
     assert actual == {"my_facts": {"sample_fact": "/tmp/sample-directory"}}
 
@@ -76,7 +80,8 @@ def test_get_facts_returns_empty_when_cache_dir_is_missing(tmp_path: Path) -> No
         )
     )
 
-    actual = result.get_facts("ARW_ITEST")
+    with pytest.warns(UserWarning):
+        actual = result.get_facts("ARW_ITEST")
 
     assert actual == {}
 
@@ -87,7 +92,8 @@ def test_get_facts_returns_empty_when_host_cache_file_is_missing(
     result = create_result(tmp_path)
     (tmp_path / "fact_cache" / "s1_OTHER").write_text("{}")
 
-    actual = result.get_facts("ARW_ITEST")
+    with pytest.warns(UserWarning):
+        actual = result.get_facts("ARW_ITEST")
 
     assert actual == {}
 
@@ -122,7 +128,8 @@ def test_get_facts_still_work_after_fact_cache_directory_is_removed(
 
     shutil.rmtree(fact_cache_dir)
 
-    actual = result.get_facts("ARW_ITEST")
+    with pytest.warns(UserWarning):
+        actual = result.get_facts("ARW_ITEST")
 
     assert actual == {"my_facts": {"sample_fact": "value"}}
 
@@ -210,6 +217,7 @@ def test_get_facts_supports_custom_fact_cache_prefix(tmp_path: Path) -> None:
     (fact_cache_dir / "prod-ARW_ITEST").write_text(json.dumps(payload))
     result = create_result(tmp_path, fact_cache_prefix="prod-")
 
-    actual = result.get_facts("ARW_ITEST")
+    with pytest.warns(UserWarning):
+        actual = result.get_facts("ARW_ITEST")
 
     assert actual == {"my_facts": {"sample_fact": "value"}}

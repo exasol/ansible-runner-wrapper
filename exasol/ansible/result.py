@@ -1,5 +1,6 @@
 import json
 import os
+import warnings
 from pathlib import Path
 from typing import Any
 
@@ -76,6 +77,14 @@ class Result:
 
     def get_facts(self, host: str) -> dict[str, Any]:
         """Retrieve facts for a host from ansible-runner output."""
+        warnings.warn(
+            "Result.get_facts() relies on internal Ansible APIs and file formats, "
+            "so it may break with future Ansible changes. Prefer stats instead of "
+            "facts once https://github.com/exasol/ansible-runner-wrapper/issues/44 "
+            "is implemented.",
+            UserWarning,
+            stacklevel=2,
+        )
         raw_facts = self._runner.get_fact_cache(host)
         if raw_facts:
             return _normalize_ansible_value(raw_facts)

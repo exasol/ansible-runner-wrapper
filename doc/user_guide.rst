@@ -41,6 +41,10 @@ Additional Details
 
 * ``runner.run()`` returns a ``Result`` object that provides access to the
   ansible-runner result, including host facts via ``result.get_facts(host)``.
+  ``result.get_facts(host)`` relies on internal Ansible APIs and file formats,
+  so it may break with future Ansible changes. Prefer stats instead of facts
+  once issue `#44 <https://github.com/exasol/ansible-runner-wrapper/issues/44>`_
+  is implemented.
 
 * You can use class ``Facts`` to conveniently access the facts hierarchically.
 
