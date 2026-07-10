@@ -59,6 +59,8 @@ class Result:
             fact_cache_prefix = ""
         fact_cache_entries = {}
         if fact_cache and isinstance(fact_cache, (str, os.PathLike)):
+            # Snapshot the fact cache now because Runner.run() deletes the
+            # temporary work directory before returning this Result.
             fact_cache_entries = Result._snapshot_fact_cache_dir(Path(fact_cache))
         return Result(
             runner,
