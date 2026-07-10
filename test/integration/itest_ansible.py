@@ -1,6 +1,6 @@
-import pytest
-
 from test.integration.docker_utils import exec_run
+
+import pytest
 
 import exasol.ansible as ansible
 
