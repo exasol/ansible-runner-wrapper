@@ -79,7 +79,7 @@ fail_under = 0
 line-length = 88
 verbose = false
 include = "\\.pyi?$"
-target-version = ["py310"]
+target-version = ["py312", "py313", "py314"]
 
 [tool.isort]
 profile = "black"
