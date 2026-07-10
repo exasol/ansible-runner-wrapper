@@ -1,8 +1,11 @@
+import pytest
+
 from test.integration.docker_utils import exec_run
 
 import exasol.ansible as ansible
 
 
+@pytest.fixture(scope="module")
 def run_lifecycle_playbook(arw_itest_docker_container) -> tuple[object, str, str]:
     container = arw_itest_docker_container
     host_name = container.name
@@ -17,7 +20,7 @@ def run_lifecycle_playbook(arw_itest_docker_container) -> tuple[object, str, str
     return runner.run(playbook), host_name, sample_directory
 
 
-def test_lifecycle(arw_itest_docker_container):
+def test_lifecycle(arw_itest_docker_container, run_lifecycle_playbook):
     """
     Use a specific playbook and some extra vars to manage a Docker
     container as Ansible host.
@@ -31,7 +34,7 @@ def test_lifecycle(arw_itest_docker_container):
 
     # Prepare all components and settings for running Ansible
     container = arw_itest_docker_container
-    result, host_name, sample_directory = run_lifecycle_playbook(container)
+    result, host_name, sample_directory = run_lifecycle_playbook
     raw_facts = result.get_facts(host_name)
 
     # Verify populated Ansible facts
@@ -43,8 +46,8 @@ def test_lifecycle(arw_itest_docker_container):
     assert path == sample_directory
 
 
-def test_result_exposes_events(arw_itest_docker_container):
-    result, host_name, _ = run_lifecycle_playbook(arw_itest_docker_container)
+def test_result_exposes_events(arw_itest_docker_container, run_lifecycle_playbook):
+    result, host_name, _ = run_lifecycle_playbook
     saw_sample_tasks_play = False
     saw_set_facts = False
     saw_create_directory = False
