@@ -1,3 +1,5 @@
+from importlib.metadata import version
+
 from .context import copy_files
 from .facts import Facts
 from .inventory import Host
@@ -8,6 +10,8 @@ from .repository import (
 )
 from .result import Result
 from .runner import Runner
+
+__version__ = version("exasol-ansible-runner-wrapper")
 
 __all__ = [
     "Facts",
