@@ -17,6 +17,7 @@ from exasol.ansible.context import copy_files
 from exasol.ansible.facts import Facts
 from exasol.ansible.playbook import Playbook
 from exasol.ansible.repository import Repository
+from exasol.ansible.result import Result
 
 logger = logging.getLogger(__name__)
 
@@ -25,60 +26,6 @@ Event = NewType("Event", dict[str, Any])
 
 class AnsibleException(RuntimeError):
     pass
-
-
-def _normalize_ansible_value(value: Any) -> Any:
-    if isinstance(value, list):
-        return [_normalize_ansible_value(item) for item in value]
-
-    if not isinstance(value, dict):
-        return value
-
-    if (
-        set(value).issubset({"value", "tags", "__ansible_type"})
-        and "value" in value
-        and "__ansible_type" in value
-    ):
-        return _normalize_ansible_value(value["value"])
-
-    return {
-        key: _normalize_ansible_value(item)
-        for key, item in value.items()
-        if key != "tags"
-    }
-
-
-def _read_fact_cache_file(path: Path) -> dict[str, Any]:
-    content = json.loads(path.read_text())
-    if isinstance(content, dict) and set(content) == {"__payload__"}:
-        content = json.loads(content["__payload__"])
-    return _normalize_ansible_value(content)
-
-
-def _retrieve_fact_cache(result: ansible_runner.Runner, host: str) -> dict[str, Any]:
-    raw_facts = result.get_fact_cache(host)
-    if raw_facts:
-        return _normalize_ansible_value(raw_facts)
-
-    fact_cache_dir = Path(result.config.fact_cache)
-    if not fact_cache_dir.exists():
-        return {}
-
-    fact_cache_prefix = getattr(result.config, "fact_cache_prefix", "")
-    candidate_names = [host]
-    if fact_cache_prefix:
-        candidate_names.insert(0, f"{fact_cache_prefix}{host}")
-
-    for candidate_name in candidate_names:
-        candidate_path = fact_cache_dir / candidate_name
-        if candidate_path.exists():
-            return _read_fact_cache_file(candidate_path)
-
-    for candidate in fact_cache_dir.iterdir():
-        if candidate.name == host or candidate.name.endswith(f"_{host}"):
-            return _read_fact_cache_file(candidate)
-
-    return {}
 
 
 class Runner:
@@ -104,8 +51,7 @@ class Runner:
         self,
         playbook: Playbook,
         hosts: tuple[inventory.Host, ...] = (),
-        retrieve_facts_from: str = "",
-    ) -> dict[str, Any]:
+    ) -> Result:
         quiet = not logger.isEnabledFor(logging.INFO)
         event_handler = None if quiet else self.event_handler
         with copy_files(repositories=self._repos, work_dir=self._path) as work_dir:
@@ -124,8 +70,4 @@ class Runner:
 
             if result.rc != 0:
                 raise AnsibleException(result.rc)
-
-            if host := retrieve_facts_from:
-                return _retrieve_fact_cache(result, host)
-            else:
-                return {}
+            return Result.from_runner(result)

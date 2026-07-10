@@ -39,9 +39,8 @@ Additional Details
   * Enables passing extra variables to Ansible.
   * Removes the directory after Ansible has terminated.
 
-* Calling ``runner.run()`` with argument ``retrieve_facts_from`` - set to the
-  name of one of the hosts managed by Ansible - will retrieve the Ansible fact
-  cache from this host.
+* ``runner.run()`` returns a ``Result`` object that provides access to the
+  ansible-runner result, including host facts via ``result.get_facts(host)``.
 
 * You can use class ``Facts`` to conveniently access the facts hierarchically.
 
@@ -83,6 +82,7 @@ Example Code
   host = ansible.Host("myhost", Path("/tmp/private_key.pem"))
 
   runner = ansible.Runner(repositories=(repo,))
-  raw_facts = runner.run(playbook, hosts=(host,) retrieve_facts_from=host.name)
+  result = runner.run(playbook, hosts=(host,))
+  raw_facts = result.get_facts(host.name)
   facts = ansible.Facts(raw_facts, prefixes=["pfx"])
   value = facts.get("parent", "child")

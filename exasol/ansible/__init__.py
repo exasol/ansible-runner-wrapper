@@ -6,6 +6,7 @@ from .repository import (
     ImportlibRepository,
     Repository,
 )
+from .result import Result
 from .runner import Runner
 
 __all__ = [
@@ -14,6 +15,7 @@ __all__ = [
     "ImportlibRepository",
     "Playbook",
     "Repository",
+    "Result",
     "Runner",
     "copy_files",
 ]
