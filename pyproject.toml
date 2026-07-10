@@ -46,6 +46,9 @@ include = [
     "LICENSE"
 ]
 
+[tool.poetry.requires-plugins]
+poetry-plugin-export = ">=1.8"
+
 [poetry.urls]
 repository = "https://github.com/exasol/ansible-runner-wrapper"
 homepage = "https://github.com/exasol/ansible-runner-wrapper"
