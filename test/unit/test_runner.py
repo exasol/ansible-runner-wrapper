@@ -13,12 +13,12 @@ from exasol.ansible.runner import (
 )
 
 
-def test_event_handler_returns_false_without_numeric_duration() -> None:
+def test_event_handler_returns_true_without_numeric_duration() -> None:
     runner = Runner(repositories=())
 
     actual = runner.event_handler({"event_data": {"duration": "slow"}})
 
-    assert actual is False
+    assert actual is True
 
 
 def test_event_handler_logs_slow_events(caplog: pytest.LogCaptureFixture) -> None:
