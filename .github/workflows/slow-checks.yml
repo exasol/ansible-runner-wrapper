@@ -4,16 +4,24 @@ on:
   workflow_call:
 
 jobs:
+  build-matrix:
+    name: Build Matrix
+    uses: ./.github/workflows/matrix.yml
+    with:
+      matrix_keys_json: '["python_versions"]'
+    permissions:
+      contents: read
 
-  run-integration-tests-matrix:
+  run-integration-tests:
     name: Run Integration Tests (Python-${{ matrix.python-version }})
     runs-on: "ubuntu-24.04"
     permissions:
       contents: read
+    needs:
+     - build-matrix
     strategy:
       fail-fast: false
-      matrix:
-        python-version: ["3.12", "3.13", "3.14"]
+      matrix: ${{ fromJson(needs.build-matrix.outputs.matrix) }}
     steps:
       - name: Check out Repository
         id: check-out-repository
@@ -40,12 +48,3 @@ jobs:
           path: .coverage
           include-hidden-files: true
           overwrite: false
-
-  run-integration-tests:
-    runs-on: ubuntu-slim
-    permissions:
-      contents: read
-    needs:
-      - run-integration-tests-matrix
-    steps:
-      - run: echo "Integration tests completed successfully."
