@@ -39,6 +39,7 @@ class Result:
     def __init__(
         self,
         runner: ansible_runner.Runner,
+        events: tuple[dict[str, Any], ...],
         fact_cache_prefix: str,
         fact_cache_entries: dict[str, dict[str, Any]],
         *,
@@ -47,23 +48,28 @@ class Result:
         if not _internal:
             raise TypeError("Use Result.from_runner() to create Result instances.")
         self._runner = runner
+        self._events = events
         self._fact_cache_prefix = fact_cache_prefix
         self._fact_cache_entries = fact_cache_entries
 
     @staticmethod
     def from_runner(runner: ansible_runner.Runner) -> "Result":
+        events = tuple(runner.events)
         config = getattr(runner, "config", None)
         fact_cache = getattr(config, "fact_cache", "")
         fact_cache_prefix = getattr(config, "fact_cache_prefix", "")
         if not isinstance(fact_cache_prefix, str):
             fact_cache_prefix = ""
         fact_cache_entries = {}
+        # Snapshot events now because Runner.run() deletes the temporary work
+        # directory before returning this Result.
         if fact_cache and isinstance(fact_cache, (str, os.PathLike)):
             # Snapshot the fact cache now because Runner.run() deletes the
             # temporary work directory before returning this Result.
             fact_cache_entries = Result._snapshot_fact_cache_dir(Path(fact_cache))
         return Result(
             runner,
+            events,
             fact_cache_prefix,
             fact_cache_entries,
             _internal=True,
@@ -71,11 +77,7 @@ class Result:
 
     @property
     def events(self):
-        return self._runner.events
-
-    @property
-    def rc(self) -> int:
-        return self._runner.rc
+        return self._events
 
     def get_facts(self, host: str) -> dict[str, Any]:
         """Retrieve facts for a host from ansible-runner output."""

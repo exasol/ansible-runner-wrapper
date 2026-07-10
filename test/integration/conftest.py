@@ -1,6 +1,7 @@
 import io
 import logging
 import os
+import uuid
 from collections.abc import Iterable
 from inspect import cleandoc
 
@@ -55,7 +56,7 @@ def arw_itest_docker_container(
     ansible in integration tests.
     """
 
-    name = "ARW_ITEST"
+    name = f"ARW_ITEST_{uuid.uuid4().hex[:8]}"
     image = arw_itest_docker_image
     container = None
     try:
