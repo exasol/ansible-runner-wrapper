@@ -28,7 +28,7 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "exasol-toolbox>=11.0.0,<12",
+    "exasol-toolbox>=12.0.0,<13",
     "pip>=26.1",
     "pytest (>=9.1.1,<10.0.0)",
     "docker (>=7.1.0, <8); sys_platform!=\"win32\"",
